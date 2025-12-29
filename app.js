@@ -516,7 +516,7 @@ function renderItemsList() {
             <input type="checkbox" class="item-checkbox" data-id="${itemId}" ${item.completed ? 'checked' : ''} />
             <span class="item-text${item.completed ? ' completed' : ''}${colorClass}" data-color="${item.color || ''}">${item.text}</span>
             <div class="item-actions">
-                <button class="item-apply" data-id="${itemId}" data-text="${item.text}" title="套用到全月">📅</button>
+                <button class="item-apply" data-id="${itemId}" data-text="${item.text}" data-color="${item.color || ''}" title="套用到全月">📅</button>
                 <button class="item-edit" data-id="${itemId}" data-text="${item.text}" data-color="${item.color || ''}" title="編輯">✎</button>
                 <button class="item-delete" data-id="${itemId}" title="刪除">×</button>
             </div>
@@ -537,7 +537,8 @@ function renderItemsList() {
     itemsList.querySelectorAll('.item-apply').forEach(btn => {
         btn.addEventListener('click', (e) => {
             const itemText = e.target.dataset.text;
-            applyItemToMonth(itemText);
+            const itemColor = e.target.dataset.color;
+            applyItemToMonth(itemText, itemColor);
         });
     });
 
@@ -798,7 +799,7 @@ function formatDateDisplay(dateKey) {
 }
 
 // 套用單一項目到全月（從現有項目）
-async function applyItemToMonth(text) {
+async function applyItemToMonth(text, color) {
     if (!currentUser) return;
 
     const confirmApply = confirm(`確定要將「${text}」套用到 ${currentYear} 年 ${currentMonth + 1} 月的所有日期嗎？\n\n（已有相同項目的日期會跳過）`);
@@ -818,10 +819,14 @@ async function applyItemToMonth(text) {
             const hasItem = Object.values(items).some(item => item.text === text);
             if (!hasItem) {
                 const newItemId = Date.now().toString() + '_' + day;
-                updates[`${dateKey}/items/${newItemId}`] = {
+                const itemData = {
                     text: text,
                     completed: false
                 };
+                if (color && color !== 'blue') {
+                    itemData.color = color;
+                }
+                updates[`${dateKey}/items/${newItemId}`] = itemData;
                 addedCount++;
             }
         }
@@ -919,12 +924,15 @@ saveAndApplyEditBtn.addEventListener('click', async () => {
         return;
     }
 
-    if (newText === editingItemOriginalText) {
-        alert('新名稱與原名稱相同');
+    const textChanged = newText !== editingItemOriginalText;
+    const colorChanged = selectedEditItemColor !== editingItemOriginalColor;
+
+    if (!textChanged && !colorChanged) {
+        alert('沒有任何變更');
         return;
     }
 
-    const confirmApply = confirm(`確定要將 ${currentYear} 年 ${currentMonth + 1} 月所有「${editingItemOriginalText}」修改為「${newText}」嗎？`);
+    const confirmApply = confirm(`確定要將 ${currentYear} 年 ${currentMonth + 1} 月所有「${editingItemOriginalText}」修改嗎？`);
     if (!confirmApply) return;
 
     try {
@@ -940,7 +948,16 @@ saveAndApplyEditBtn.addEventListener('click', async () => {
 
             Object.keys(items).forEach(itemId => {
                 if (items[itemId].text === editingItemOriginalText) {
-                    updates[`${dateKey}/items/${itemId}/text`] = newText;
+                    if (textChanged) {
+                        updates[`${dateKey}/items/${itemId}/text`] = newText;
+                    }
+                    if (colorChanged) {
+                        if (selectedEditItemColor && selectedEditItemColor !== 'blue') {
+                            updates[`${dateKey}/items/${itemId}/color`] = selectedEditItemColor;
+                        } else {
+                            updates[`${dateKey}/items/${itemId}/color`] = null;
+                        }
+                    }
                     count++;
                 }
             });
@@ -957,6 +974,7 @@ saveAndApplyEditBtn.addEventListener('click', async () => {
         editItemModal.classList.add('hidden');
         editingItemId = null;
         editingItemOriginalText = null;
+        editingItemOriginalColor = null;
 
         alert(`已成功修改 ${count} 個項目！`);
     } catch (error) {
