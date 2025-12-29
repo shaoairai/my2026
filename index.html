@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>123</title>
+    <link rel="stylesheet" href="style.css" />
+  </head>
+  <body>
+    <!-- 登入頁面 -->
+    <div id="loginPage" class="page">
+      <div class="login-container">
+        <h1></h1>
+        <div class="login-form">
+          <input
+            type="tel"
+            id="phoneInput"
+            placeholder="手機號碼"
+            maxlength="10"
+          />
+          <input type="password" id="passwordInput" placeholder="密碼" />
+          <button id="loginBtn">登入</button>
+          <p id="loginError" class="error-msg"></p>
+        </div>
+      </div>
+    </div>
+
+    <!-- 主頁面 -->
+    <div id="mainPage" class="page hidden">
+      <!-- 頂部導覽 -->
+      <header class="header">
+        <div class="header-left">
+          <span id="currentUserDisplay"></span>
+        </div>
+        <div class="header-center">
+          <h1></h1>
+        </div>
+        <div class="header-right">
+          <button id="changePasswordBtn">修改密碼</button>
+          <button id="logoutBtn">登出</button>
+        </div>
+      </header>
+
+      <!-- 目標設定區 -->
+      <section class="goals-section">
+        <div class="goal-card goal-card-large">
+          <h3>📅 月目標</h3>
+          <div id="monthGoalsList" class="goal-items-list"></div>
+          <div class="goal-input-group">
+            <input
+              type="text"
+              id="monthGoalInput"
+              placeholder="輸入本月目標..."
+            />
+            <button id="addMonthGoalBtn">新增</button>
+          </div>
+        </div>
+        <div class="goal-card goal-card-large">
+          <h3>📆 週目標</h3>
+          <div id="weekGoalsList" class="goal-items-list"></div>
+          <div class="goal-input-group">
+            <input
+              type="text"
+              id="weekGoalInput"
+              placeholder="輸入本週目標..."
+            />
+            <button id="addWeekGoalBtn">新增</button>
+          </div>
+        </div>
+        <div class="goal-card progress-card">
+          <h3>📊 本月達成率</h3>
+          <div class="progress-display">
+            <span id="progressRate">0%</span>
+          </div>
+          <p id="progressDetail" class="progress-detail"></p>
+        </div>
+      </section>
+
+      <!-- 月曆區 -->
+      <section class="calendar-section">
+        <div class="calendar-header">
+          <button id="prevMonthBtn">&lt; 上月</button>
+          <h2 id="calendarTitle"></h2>
+          <button id="nextMonthBtn">下月 &gt;</button>
+        </div>
+        <div class="calendar-weekdays">
+          <div>日</div>
+          <div>一</div>
+          <div>二</div>
+          <div>三</div>
+          <div>四</div>
+          <div>五</div>
+          <div>六</div>
+        </div>
+        <div id="calendarGrid" class="calendar-grid"></div>
+      </section>
+
+      <!-- 每日項目彈窗 -->
+      <div id="dailyModal" class="modal hidden">
+        <div class="modal-content modal-large">
+          <span class="modal-close" id="closeModal">&times;</span>
+          <h3 id="modalDate"></h3>
+          <div class="modal-body">
+            <!-- 現有項目列表 -->
+            <div id="itemsList" class="items-list"></div>
+
+            <!-- 新增項目區 -->
+            <div class="add-item-section">
+              <input
+                type="text"
+                id="newItemInput"
+                placeholder="輸入新項目..."
+              />
+              <div class="color-picker">
+                <span class="color-label">顏色：</span>
+                <div class="color-options" id="newItemColorPicker">
+                  <span class="color-option selected" data-color="blue" style="background:#1a73e8" title="藍色"></span>
+                  <span class="color-option" data-color="red" style="background:#c5221f" title="紅色"></span>
+                  <span class="color-option" data-color="orange" style="background:#e37400" title="橘色"></span>
+                  <span class="color-option" data-color="yellow" style="background:#f9ab00" title="黃色"></span>
+                  <span class="color-option" data-color="cyan" style="background:#00838f" title="青色"></span>
+                  <span class="color-option" data-color="purple" style="background:#7627bb" title="紫色"></span>
+                  <span class="color-option" data-color="pink" style="background:#c2185b" title="粉色"></span>
+                  <span class="color-option" data-color="gray" style="background:#5f6368" title="灰色"></span>
+                </div>
+              </div>
+              <button id="addItemBtn">新增</button>
+              <button id="addAndApplyBtn" class="btn-secondary">新增並套用到全月</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 編輯項目彈窗 -->
+      <div id="editItemModal" class="modal hidden">
+        <div class="modal-content">
+          <span class="modal-close" id="closeEditModal">&times;</span>
+          <h3>編輯項目</h3>
+          <div class="modal-body">
+            <input
+              type="text"
+              id="editItemInput"
+              placeholder="項目名稱..."
+            />
+            <div class="color-picker">
+              <span class="color-label">顏色：</span>
+              <div class="color-options" id="editItemColorPicker">
+                <span class="color-option selected" data-color="blue" style="background:#1a73e8" title="藍色"></span>
+                <span class="color-option" data-color="red" style="background:#c5221f" title="紅色"></span>
+                <span class="color-option" data-color="orange" style="background:#e37400" title="橘色"></span>
+                <span class="color-option" data-color="yellow" style="background:#f9ab00" title="黃色"></span>
+                <span class="color-option" data-color="cyan" style="background:#00838f" title="青色"></span>
+                <span class="color-option" data-color="purple" style="background:#7627bb" title="紫色"></span>
+                <span class="color-option" data-color="pink" style="background:#c2185b" title="粉色"></span>
+                <span class="color-option" data-color="gray" style="background:#5f6368" title="灰色"></span>
+              </div>
+            </div>
+            <div class="edit-buttons">
+              <button id="saveEditBtn">儲存</button>
+              <button id="saveAndApplyEditBtn" class="btn-secondary">修改並套用到全月</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 修改密碼彈窗 -->
+      <div id="passwordModal" class="modal hidden">
+        <div class="modal-content">
+          <span class="modal-close" id="closePasswordModal">&times;</span>
+          <h3>修改密碼</h3>
+          <div class="modal-body">
+            <label>目前密碼：</label>
+            <input
+              type="password"
+              id="currentPasswordInput"
+              placeholder="輸入目前密碼"
+            />
+            <label>新密碼：</label>
+            <input
+              type="password"
+              id="newPasswordInput"
+              placeholder="輸入新密碼"
+            />
+            <label>確認新密碼：</label>
+            <input
+              type="password"
+              id="confirmPasswordInput"
+              placeholder="再次輸入新密碼"
+            />
+            <p id="passwordError" class="error-msg"></p>
+            <button id="savePasswordBtn">儲存密碼</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <script type="module" src="app.js"></script>
+  </body>
+</html>
