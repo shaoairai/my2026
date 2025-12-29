@@ -388,12 +388,10 @@ function updateCalendarStatus() {
         if (dayItemsContainer) {
             dayItemsContainer.innerHTML = '';
 
-            // 顯示我的項目（最多顯示 3 個，避免撐爆格子）
+            // 顯示所有項目
             const itemKeys = Object.keys(items);
-            const displayCount = Math.min(itemKeys.length, 3);
 
-            for (let i = 0; i < displayCount; i++) {
-                const itemId = itemKeys[i];
+            itemKeys.forEach(itemId => {
                 const item = items[itemId];
                 const itemDiv = document.createElement('div');
                 const colorClass = item.color ? ` item-color-${item.color}` : '';
@@ -405,15 +403,7 @@ function updateCalendarStatus() {
                 itemDiv.dataset.itemCompleted = item.completed;
                 itemDiv.dataset.itemColor = item.color || '';
                 dayItemsContainer.appendChild(itemDiv);
-            }
-
-            // 若超過 3 個，顯示剩餘數量
-            if (itemKeys.length > 3) {
-                const moreDiv = document.createElement('div');
-                moreDiv.className = 'day-item-more';
-                moreDiv.textContent = `+${itemKeys.length - 3} 項`;
-                dayItemsContainer.appendChild(moreDiv);
-            }
+            });
 
             // 為每個項目加上拖曳和點擊事件
             dayItemsContainer.querySelectorAll('.day-item.my-item').forEach(itemDiv => {
