@@ -415,13 +415,30 @@ function updateCalendarStatus() {
                 dayItemsContainer.appendChild(moreDiv);
             }
 
-            // 為每個項目加上拖曳事件
+            // 為每個項目加上拖曳和點擊事件
             dayItemsContainer.querySelectorAll('.day-item.my-item').forEach(itemDiv => {
                 itemDiv.draggable = true;
-                itemDiv.addEventListener('dragstart', handleCalendarItemDragStart);
+                let isDragging = false;
+
+                itemDiv.addEventListener('mousedown', () => {
+                    isDragging = false;
+                });
+
+                itemDiv.addEventListener('dragstart', (e) => {
+                    isDragging = true;
+                    handleCalendarItemDragStart(e);
+                });
+
                 itemDiv.addEventListener('dragend', handleCalendarItemDragEnd);
-                // 防止點擊時觸發日期彈窗
-                itemDiv.addEventListener('click', (e) => e.stopPropagation());
+
+                // 點擊時打開該日的彈窗（只有在沒有拖曳時）
+                itemDiv.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    if (!isDragging) {
+                        openDailyModal(dateKey);
+                    }
+                    isDragging = false;
+                });
             });
         }
 
@@ -494,13 +511,8 @@ function renderItemsList() {
         const item = items[itemId];
         const itemRow = document.createElement('div');
         itemRow.className = 'item-row';
-        itemRow.draggable = true;
-        itemRow.dataset.itemId = itemId;
-        itemRow.dataset.itemText = item.text;
-        itemRow.dataset.itemCompleted = item.completed;
         const colorClass = item.color ? ` item-color-${item.color}` : '';
         itemRow.innerHTML = `
-            <span class="drag-handle" title="拖曳到其他日期">⋮⋮</span>
             <input type="checkbox" class="item-checkbox" data-id="${itemId}" ${item.completed ? 'checked' : ''} />
             <span class="item-text${item.completed ? ' completed' : ''}${colorClass}" data-color="${item.color || ''}">${item.text}</span>
             <div class="item-actions">
@@ -509,10 +521,6 @@ function renderItemsList() {
                 <button class="item-delete" data-id="${itemId}" title="刪除">×</button>
             </div>
         `;
-
-        // 拖曳事件
-        itemRow.addEventListener('dragstart', handleDragStart);
-        itemRow.addEventListener('dragend', handleDragEnd);
 
         itemsList.appendChild(itemRow);
     });
@@ -716,31 +724,6 @@ function handleCalendarItemDragStart(e) {
 // 日曆上的項目拖曳結束
 function handleCalendarItemDragEnd(e) {
     e.target.classList.remove('dragging');
-    document.querySelectorAll('.calendar-day').forEach(day => {
-        day.classList.remove('drag-over');
-    });
-}
-
-// 彈窗內項目拖曳開始（保留原有功能）
-function handleDragStart(e) {
-    draggedItem = {
-        itemId: e.target.dataset.itemId,
-        text: e.target.dataset.itemText,
-        completed: e.target.dataset.itemCompleted === 'true',
-        sourceDate: selectedDate
-    };
-    e.target.classList.add('dragging');
-
-    // 關閉彈窗以便看到日曆
-    setTimeout(() => {
-        dailyModal.classList.add('hidden');
-    }, 100);
-}
-
-function handleDragEnd(e) {
-    e.target.classList.remove('dragging');
-
-    // 移除所有日曆格的拖曳樣式
     document.querySelectorAll('.calendar-day').forEach(day => {
         day.classList.remove('drag-over');
     });
