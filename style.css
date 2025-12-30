@@ -1,4 +1,37 @@
-/* 基本重置 */
+/* ==================== 色系變數定義 ==================== */
+:root {
+    /* 主色（質感森林綠） */
+    --primary: #2D9B6E;
+    --primary-soft: #E8F5EF;
+    --primary-hover: #258A5F;
+
+    /* 輔助色（溫暖琥珀）- 已完成狀態 */
+    --success: #F5A623;
+    --success-soft: #FEF6E6;
+    --success-hover: #E09515;
+
+    /* 背景色 */
+    --bg-page: #F8FAF9;
+    --bg-card: #FFFFFF;
+    --bg-hover: #EDF5F1;
+    --bg-muted: #F3F7F5;
+
+    /* 文字色 */
+    --text-primary: #1A2E25;
+    --text-secondary: #5A6B63;
+    --text-on-primary: #FFFFFF;
+
+    /* 邊框色 */
+    --border: #D8E5DE;
+    --border-light: #E8F0EB;
+
+    /* 陰影 - 質感淺陰影 */
+    --shadow-sm: 0 2px 8px rgba(45, 155, 110, 0.06), 0 1px 3px rgba(0, 0, 0, 0.04);
+    --shadow-md: 0 4px 16px rgba(45, 155, 110, 0.08), 0 2px 6px rgba(0, 0, 0, 0.05);
+    --shadow-lg: 0 8px 24px rgba(45, 155, 110, 0.10), 0 4px 10px rgba(0, 0, 0, 0.06);
+}
+
+/* ==================== 基本重置 ==================== */
 * {
     margin: 0;
     padding: 0;
@@ -7,8 +40,9 @@
 
 body {
     font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
-    background-color: #f5f5f5;
+    background-color: var(--bg-page);
     min-height: 100vh;
+    color: var(--text-primary);
 }
 
 .page {
@@ -19,7 +53,7 @@ body {
     display: none !important;
 }
 
-/* 登入頁面 */
+/* ==================== 登入頁面 ==================== */
 .login-container {
     display: flex;
     flex-direction: column;
@@ -27,19 +61,20 @@ body {
     justify-content: center;
     min-height: 100vh;
     padding: 20px;
+    background-color: var(--bg-page);
 }
 
 .login-container h1 {
     font-size: 2rem;
     margin-bottom: 30px;
-    color: #1a73e8;
+    color: var(--primary);
 }
 
 .login-form {
-    background: white;
+    background: var(--bg-card);
     padding: 40px;
-    border-radius: 12px;
-    box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+    border-radius: 16px;
+    box-shadow: var(--shadow-lg);
     width: 100%;
     max-width: 360px;
 }
@@ -48,47 +83,55 @@ body {
     width: 100%;
     padding: 14px;
     margin-bottom: 16px;
-    border: 1px solid #ddd;
+    border: 1px solid var(--border);
     border-radius: 8px;
     font-size: 16px;
+    background: var(--bg-card);
+    color: var(--text-primary);
+    transition: border-color 0.2s;
 }
 
 .login-form input:focus {
     outline: none;
-    border-color: #1a73e8;
+    border-color: var(--primary);
+}
+
+.login-form input::placeholder {
+    color: var(--text-secondary);
 }
 
 .login-form button {
     width: 100%;
     padding: 14px;
-    background: #1a73e8;
-    color: white;
+    background: var(--primary);
+    color: var(--text-on-primary);
     border: none;
     border-radius: 8px;
     font-size: 16px;
     cursor: pointer;
     transition: background 0.2s;
+    font-weight: 500;
 }
 
 .login-form button:hover {
-    background: #1557b0;
+    background: var(--primary-hover);
 }
 
 .error-msg {
-    color: #d93025;
+    color: #C45C4A;
     font-size: 14px;
     margin-top: 12px;
     text-align: center;
 }
 
-/* 頂部導覽 */
+/* ==================== 頂部導覽 ==================== */
 .header {
     display: flex;
     align-items: center;
     justify-content: space-between;
     padding: 16px 24px;
-    background: white;
-    border-bottom: 1px solid #e0e0e0;
+    background: var(--bg-card);
+    border-bottom: 1px solid var(--border);
     position: sticky;
     top: 0;
     z-index: 100;
@@ -96,12 +139,12 @@ body {
 
 .header-left {
     font-size: 14px;
-    color: #5f6368;
+    color: var(--text-secondary);
 }
 
 .header-center h1 {
     font-size: 1.25rem;
-    color: #202124;
+    color: var(--text-primary);
 }
 
 .header-right {
@@ -111,19 +154,210 @@ body {
 
 .header-right button {
     padding: 8px 16px;
-    background: #f1f3f4;
+    background: var(--bg-muted);
     border: none;
-    border-radius: 6px;
+    border-radius: 8px;
     cursor: pointer;
-    color: #5f6368;
+    color: var(--text-secondary);
     font-size: 14px;
+    transition: all 0.2s;
 }
 
 .header-right button:hover {
-    background: #e8eaed;
+    background: var(--bg-hover);
+    color: var(--text-primary);
 }
 
-/* 目標設定區 */
+/* ==================== 年度目標區 ==================== */
+.yearly-goal-section {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 20px 20px 0;
+}
+
+.yearly-goal-card {
+    background: var(--bg-card);
+    padding: 24px;
+    border-radius: 16px;
+    box-shadow: var(--shadow-md);
+}
+
+.yearly-goal-card h3 {
+    font-size: 1.1rem;
+    color: var(--text-primary);
+    margin-bottom: 16px;
+    font-weight: 600;
+}
+
+.year-goals-list {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    margin-bottom: 16px;
+}
+
+.year-goals-list:empty {
+    display: none;
+}
+
+.year-goal-item {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 10px 16px;
+    background: linear-gradient(135deg, rgba(255,255,255,0.9) 0%, rgba(248,250,249,0.95) 100%);
+    border-radius: 12px;
+    font-size: 14px;
+    box-shadow: var(--shadow-sm);
+    backdrop-filter: blur(4px);
+    transition: all 0.2s;
+}
+
+.year-goal-item:hover {
+    background: linear-gradient(135deg, rgba(255,255,255,1) 0%, rgba(237,245,241,0.95) 100%);
+    box-shadow: var(--shadow-md);
+    transform: translateY(-1px);
+}
+
+.year-goal-item.completed {
+    background: linear-gradient(135deg, rgba(254,246,230,0.95) 0%, rgba(245,166,35,0.1) 100%);
+}
+
+.year-goal-item.completed .year-goal-text {
+    text-decoration: line-through;
+    color: var(--text-secondary);
+}
+
+.year-goal-item .year-goal-text {
+    color: var(--text-primary);
+    cursor: pointer;
+    flex: 1;
+}
+
+.year-goal-item .year-goal-text:hover {
+    text-decoration: underline;
+}
+
+.year-goal-item .year-goal-drag-handle {
+    cursor: grab;
+    color: var(--text-secondary);
+    font-size: 12px;
+    padding: 0 4px;
+    user-select: none;
+    opacity: 0.5;
+    transition: opacity 0.2s;
+}
+
+.year-goal-item:hover .year-goal-drag-handle {
+    opacity: 1;
+}
+
+.year-goal-item.dragging {
+    opacity: 0.5;
+    transform: scale(0.98);
+}
+
+.year-goal-item.drag-over {
+    border: 2px dashed var(--primary);
+    background: var(--primary-soft) !important;
+}
+
+.year-goal-item .year-goal-checkbox {
+    width: 18px;
+    height: 18px;
+    cursor: pointer;
+    accent-color: var(--success);
+}
+
+.year-goal-item .year-goal-delete {
+    width: 20px;
+    height: 20px;
+    border: none;
+    background: transparent;
+    color: var(--text-secondary);
+    cursor: pointer;
+    border-radius: 50%;
+    font-size: 14px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-left: 4px;
+    transition: all 0.2s;
+}
+
+.year-goal-item .year-goal-delete:hover {
+    background: rgba(196, 92, 74, 0.1);
+    color: #C45C4A;
+}
+
+/* 年度目標顏色 - 霧面色調標記 */
+.year-goal-item.color-blue { background: linear-gradient(135deg, rgba(52,152,219,0.08) 0%, rgba(52,152,219,0.15) 100%); }
+.year-goal-item.color-red { background: linear-gradient(135deg, rgba(231,76,60,0.08) 0%, rgba(231,76,60,0.15) 100%); }
+.year-goal-item.color-orange { background: linear-gradient(135deg, rgba(230,126,34,0.08) 0%, rgba(230,126,34,0.15) 100%); }
+.year-goal-item.color-yellow { background: linear-gradient(135deg, rgba(241,196,15,0.08) 0%, rgba(241,196,15,0.18) 100%); }
+.year-goal-item.color-cyan { background: linear-gradient(135deg, rgba(26,188,156,0.08) 0%, rgba(26,188,156,0.15) 100%); }
+.year-goal-item.color-purple { background: linear-gradient(135deg, rgba(155,89,182,0.08) 0%, rgba(155,89,182,0.15) 100%); }
+.year-goal-item.color-pink { background: linear-gradient(135deg, rgba(233,30,99,0.08) 0%, rgba(233,30,99,0.15) 100%); }
+.year-goal-item.color-gray { background: linear-gradient(135deg, rgba(127,140,141,0.08) 0%, rgba(127,140,141,0.15) 100%); }
+
+.year-goal-item.color-blue:hover { background: linear-gradient(135deg, rgba(52,152,219,0.12) 0%, rgba(52,152,219,0.22) 100%); }
+.year-goal-item.color-red:hover { background: linear-gradient(135deg, rgba(231,76,60,0.12) 0%, rgba(231,76,60,0.22) 100%); }
+.year-goal-item.color-orange:hover { background: linear-gradient(135deg, rgba(230,126,34,0.12) 0%, rgba(230,126,34,0.22) 100%); }
+.year-goal-item.color-yellow:hover { background: linear-gradient(135deg, rgba(241,196,15,0.12) 0%, rgba(241,196,15,0.25) 100%); }
+.year-goal-item.color-cyan:hover { background: linear-gradient(135deg, rgba(26,188,156,0.12) 0%, rgba(26,188,156,0.22) 100%); }
+.year-goal-item.color-purple:hover { background: linear-gradient(135deg, rgba(155,89,182,0.12) 0%, rgba(155,89,182,0.22) 100%); }
+.year-goal-item.color-pink:hover { background: linear-gradient(135deg, rgba(233,30,99,0.12) 0%, rgba(233,30,99,0.22) 100%); }
+.year-goal-item.color-gray:hover { background: linear-gradient(135deg, rgba(127,140,141,0.12) 0%, rgba(127,140,141,0.22) 100%); }
+
+.year-goal-input-area {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    align-items: center;
+}
+
+.year-goal-input-area input[type="text"] {
+    flex: 1;
+    min-width: 200px;
+    padding: 10px 14px;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    font-size: 14px;
+    background: var(--bg-card);
+    color: var(--text-primary);
+    transition: border-color 0.2s;
+}
+
+.year-goal-input-area input[type="text"]:focus {
+    outline: none;
+    border-color: var(--primary);
+}
+
+.year-goal-input-area .color-picker {
+    padding: 0;
+}
+
+.year-goal-input-area .color-label {
+    color: var(--text-secondary);
+}
+
+.year-goal-input-area button {
+    padding: 10px 20px;
+    background: var(--primary);
+    color: var(--text-on-primary);
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 14px;
+    font-weight: 500;
+    transition: background 0.2s;
+}
+
+.year-goal-input-area button:hover {
+    background: var(--primary-hover);
+}
+
+/* ==================== 目標設定區 ==================== */
 .goals-section {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
@@ -134,16 +368,17 @@ body {
 }
 
 .goal-card {
-    background: white;
+    background: var(--bg-card);
     padding: 20px;
-    border-radius: 12px;
-    box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+    border-radius: 16px;
+    box-shadow: var(--shadow-md);
 }
 
 .goal-card h3 {
     font-size: 1rem;
-    color: #202124;
+    color: var(--text-primary);
     margin-bottom: 12px;
+    font-weight: 600;
 }
 
 .goal-input-group {
@@ -154,37 +389,91 @@ body {
 .goal-input-group input {
     flex: 1;
     padding: 10px 12px;
-    border: 1px solid #ddd;
-    border-radius: 6px;
+    border: 1px solid var(--border);
+    border-radius: 8px;
     font-size: 14px;
+    background: var(--bg-card);
+    color: var(--text-primary);
+    transition: border-color 0.2s;
 }
 
 .goal-input-group input:focus {
     outline: none;
-    border-color: #1a73e8;
+    border-color: var(--primary);
 }
 
 .goal-input-group button {
     padding: 10px 16px;
-    background: #1a73e8;
-    color: white;
+    background: var(--primary);
+    color: var(--text-on-primary);
     border: none;
-    border-radius: 6px;
+    border-radius: 8px;
     cursor: pointer;
     font-size: 14px;
+    font-weight: 500;
+    transition: background 0.2s;
 }
 
 .goal-input-group button:hover {
-    background: #1557b0;
+    background: var(--primary-hover);
+}
+
+/* 月目標輸入區 */
+.month-goal-input-area {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    align-items: center;
+}
+
+.month-goal-input-area input[type="text"] {
+    flex: 1;
+    min-width: 150px;
+    padding: 10px 14px;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    font-size: 14px;
+    background: var(--bg-card);
+    color: var(--text-primary);
+    transition: border-color 0.2s;
+}
+
+.month-goal-input-area input[type="text"]:focus {
+    outline: none;
+    border-color: var(--primary);
+}
+
+.month-goal-input-area .color-picker {
+    padding: 0;
+}
+
+.month-goal-input-area .color-label {
+    color: var(--text-secondary);
+}
+
+.month-goal-input-area button {
+    padding: 10px 20px;
+    background: var(--primary);
+    color: var(--text-on-primary);
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 14px;
+    font-weight: 500;
+    transition: background 0.2s;
+}
+
+.month-goal-input-area button:hover {
+    background: var(--primary-hover);
 }
 
 .current-goal {
     margin-top: 12px;
     padding: 10px;
-    background: #f8f9fa;
-    border-radius: 6px;
+    background: var(--bg-muted);
+    border-radius: 8px;
     font-size: 14px;
-    color: #5f6368;
+    color: var(--text-secondary);
 }
 
 .current-goal:empty {
@@ -210,29 +499,63 @@ body {
     display: flex;
     align-items: center;
     gap: 8px;
-    padding: 8px 10px;
-    background: #f8f9fa;
-    border-radius: 6px;
+    padding: 10px 12px;
+    background: var(--bg-muted);
+    border-radius: 8px;
     margin-bottom: 6px;
+    transition: background 0.2s;
+}
+
+.goal-item-row:hover {
+    background: var(--bg-hover);
 }
 
 .goal-item-row input[type="checkbox"] {
     width: 18px;
     height: 18px;
     cursor: pointer;
-    accent-color: #34a853;
+    accent-color: var(--success);
     flex-shrink: 0;
 }
 
 .goal-item-row .goal-item-text {
     flex: 1;
     font-size: 14px;
-    color: #202124;
+    color: var(--text-primary);
+    cursor: pointer;
 }
 
-.goal-item-row .goal-item-text.completed {
+.goal-item-row .goal-item-text:hover {
+    text-decoration: underline;
+}
+
+.goal-item-row.completed .goal-item-text {
     text-decoration: line-through;
-    color: #5f6368;
+    color: var(--text-secondary);
+}
+
+.goal-item-row .goal-item-drag-handle {
+    cursor: grab;
+    color: var(--text-secondary);
+    font-size: 12px;
+    padding: 0 4px;
+    user-select: none;
+    opacity: 0.5;
+    transition: opacity 0.2s;
+}
+
+.goal-item-row:hover .goal-item-drag-handle {
+    opacity: 1;
+}
+
+.goal-item-row.dragging {
+    opacity: 0.5;
+    transform: scale(0.98);
+}
+
+.goal-item-row.drag-over {
+    border: 2px dashed var(--primary);
+    background: var(--primary-soft) !important;
 }
 
 .goal-item-row .goal-item-delete {
@@ -240,21 +563,42 @@ body {
     height: 24px;
     border: none;
     background: transparent;
-    color: #5f6368;
+    color: var(--text-secondary);
     cursor: pointer;
     border-radius: 50%;
     font-size: 16px;
     display: flex;
     align-items: center;
     justify-content: center;
+    transition: all 0.2s;
+    flex-shrink: 0;
 }
 
 .goal-item-row .goal-item-delete:hover {
-    background: #fce8e6;
-    color: #d93025;
+    background: rgba(196, 92, 74, 0.1);
+    color: #C45C4A;
 }
 
-/* 達成率卡片 */
+/* 月目標顏色 - 霧面色調標記 */
+.goal-item-row.color-blue { background: linear-gradient(135deg, rgba(52,152,219,0.08) 0%, rgba(52,152,219,0.15) 100%); }
+.goal-item-row.color-red { background: linear-gradient(135deg, rgba(231,76,60,0.08) 0%, rgba(231,76,60,0.15) 100%); }
+.goal-item-row.color-orange { background: linear-gradient(135deg, rgba(230,126,34,0.08) 0%, rgba(230,126,34,0.15) 100%); }
+.goal-item-row.color-yellow { background: linear-gradient(135deg, rgba(241,196,15,0.08) 0%, rgba(241,196,15,0.18) 100%); }
+.goal-item-row.color-cyan { background: linear-gradient(135deg, rgba(26,188,156,0.08) 0%, rgba(26,188,156,0.15) 100%); }
+.goal-item-row.color-purple { background: linear-gradient(135deg, rgba(155,89,182,0.08) 0%, rgba(155,89,182,0.15) 100%); }
+.goal-item-row.color-pink { background: linear-gradient(135deg, rgba(233,30,99,0.08) 0%, rgba(233,30,99,0.15) 100%); }
+.goal-item-row.color-gray { background: linear-gradient(135deg, rgba(127,140,141,0.08) 0%, rgba(127,140,141,0.15) 100%); }
+
+.goal-item-row.color-blue:hover { background: linear-gradient(135deg, rgba(52,152,219,0.12) 0%, rgba(52,152,219,0.22) 100%); }
+.goal-item-row.color-red:hover { background: linear-gradient(135deg, rgba(231,76,60,0.12) 0%, rgba(231,76,60,0.22) 100%); }
+.goal-item-row.color-orange:hover { background: linear-gradient(135deg, rgba(230,126,34,0.12) 0%, rgba(230,126,34,0.22) 100%); }
+.goal-item-row.color-yellow:hover { background: linear-gradient(135deg, rgba(241,196,15,0.12) 0%, rgba(241,196,15,0.25) 100%); }
+.goal-item-row.color-cyan:hover { background: linear-gradient(135deg, rgba(26,188,156,0.12) 0%, rgba(26,188,156,0.22) 100%); }
+.goal-item-row.color-purple:hover { background: linear-gradient(135deg, rgba(155,89,182,0.12) 0%, rgba(155,89,182,0.22) 100%); }
+.goal-item-row.color-pink:hover { background: linear-gradient(135deg, rgba(233,30,99,0.12) 0%, rgba(233,30,99,0.22) 100%); }
+.goal-item-row.color-gray:hover { background: linear-gradient(135deg, rgba(127,140,141,0.12) 0%, rgba(127,140,141,0.22) 100%); }
+
+/* ==================== 達成率卡片 ==================== */
 .progress-card .progress-display {
     text-align: center;
     padding: 20px;
@@ -263,16 +607,16 @@ body {
 .progress-card #progressRate {
     font-size: 3rem;
     font-weight: bold;
-    color: #1a73e8;
+    color: var(--success);
 }
 
 .progress-detail {
     text-align: center;
     font-size: 14px;
-    color: #5f6368;
+    color: var(--text-secondary);
 }
 
-/* 其他人日曆區 */
+/* ==================== 其他人日曆區 ==================== */
 .shared-calendars-section {
     max-width: 1200px;
     margin: 0 auto;
@@ -280,16 +624,18 @@ body {
 }
 
 .shared-calendars-card {
-    background: white;
+    background: var(--bg-card);
     padding: 20px;
-    border-radius: 12px;
-    box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+    border-radius: 16px;
+    box-shadow: var(--shadow-sm);
+    border: 1px solid var(--border-light);
 }
 
 .shared-calendars-card h3 {
     font-size: 1rem;
-    color: #202124;
+    color: var(--text-primary);
     margin-bottom: 16px;
+    font-weight: 600;
 }
 
 .users-list {
@@ -309,14 +655,15 @@ body {
     transition: all 0.2s;
     border: 2px solid transparent;
     font-size: 14px;
+    background: var(--bg-muted);
 }
 
 .user-toggle:hover {
-    opacity: 0.8;
+    background: var(--bg-hover);
 }
 
 .user-toggle.active {
-    border-color: #202124;
+    border-color: var(--text-primary);
 }
 
 .user-toggle .user-color {
@@ -326,7 +673,7 @@ body {
 }
 
 .user-toggle .user-name {
-    color: #202124;
+    color: var(--text-primary);
 }
 
 .others-progress {
@@ -340,7 +687,7 @@ body {
     align-items: center;
     gap: 10px;
     padding: 10px 16px;
-    background: #f8f9fa;
+    background: var(--bg-muted);
     border-radius: 8px;
     border-left: 4px solid;
 }
@@ -352,12 +699,12 @@ body {
 
 .other-user-progress .user-phone {
     font-size: 13px;
-    color: #5f6368;
+    color: var(--text-secondary);
 }
 
 .other-user-progress .user-goal {
     font-size: 12px;
-    color: #80868b;
+    color: var(--text-secondary);
     max-width: 200px;
     overflow: hidden;
     text-overflow: ellipsis;
@@ -367,6 +714,7 @@ body {
 .other-user-progress .user-rate {
     font-size: 1.2rem;
     font-weight: bold;
+    color: var(--success);
 }
 
 /* 日曆上的多人標記 */
@@ -383,44 +731,44 @@ body {
     border-radius: 50%;
 }
 
-/* 使用者顏色定義 */
-.user-color-0 { background-color: #1a73e8; }
-.user-color-1 { background-color: #ea4335; }
-.user-color-2 { background-color: #34a853; }
-.user-color-3 { background-color: #fbbc04; }
-.user-color-4 { background-color: #9334e6; }
-.user-color-5 { background-color: #e91e63; }
-.user-color-6 { background-color: #00bcd4; }
-.user-color-7 { background-color: #ff5722; }
+/* 使用者顏色定義 - 鮮豔色調 */
+.user-color-0 { background-color: #3498DB; }
+.user-color-1 { background-color: #E74C3C; }
+.user-color-2 { background-color: #2ECC71; }
+.user-color-3 { background-color: #F1C40F; }
+.user-color-4 { background-color: #9B59B6; }
+.user-color-5 { background-color: #E91E63; }
+.user-color-6 { background-color: #1ABC9C; }
+.user-color-7 { background-color: #E67E22; }
 
-.text-color-0 { color: #1a73e8; }
-.text-color-1 { color: #ea4335; }
-.text-color-2 { color: #34a853; }
-.text-color-3 { color: #fbbc04; }
-.text-color-4 { color: #9334e6; }
-.text-color-5 { color: #e91e63; }
-.text-color-6 { color: #00bcd4; }
-.text-color-7 { color: #ff5722; }
+.text-color-0 { color: #3498DB; }
+.text-color-1 { color: #E74C3C; }
+.text-color-2 { color: #2ECC71; }
+.text-color-3 { color: #F1C40F; }
+.text-color-4 { color: #9B59B6; }
+.text-color-5 { color: #E91E63; }
+.text-color-6 { color: #1ABC9C; }
+.text-color-7 { color: #E67E22; }
 
-.bg-color-0 { background-color: #e8f0fe; }
-.bg-color-1 { background-color: #fce8e6; }
-.bg-color-2 { background-color: #e6f4ea; }
-.bg-color-3 { background-color: #fef7e0; }
-.bg-color-4 { background-color: #f3e8fd; }
-.bg-color-5 { background-color: #fce4ec; }
-.bg-color-6 { background-color: #e0f7fa; }
-.bg-color-7 { background-color: #fbe9e7; }
+.bg-color-0 { background-color: #EBF5FB; }
+.bg-color-1 { background-color: #FDEDEC; }
+.bg-color-2 { background-color: #E8F8EF; }
+.bg-color-3 { background-color: #FEF9E7; }
+.bg-color-4 { background-color: #F5EEF8; }
+.bg-color-5 { background-color: #FCE4EC; }
+.bg-color-6 { background-color: #E8F6F3; }
+.bg-color-7 { background-color: #FDF2E9; }
 
-.border-color-0 { border-color: #1a73e8; }
-.border-color-1 { border-color: #ea4335; }
-.border-color-2 { border-color: #34a853; }
-.border-color-3 { border-color: #fbbc04; }
-.border-color-4 { border-color: #9334e6; }
-.border-color-5 { border-color: #e91e63; }
-.border-color-6 { border-color: #00bcd4; }
-.border-color-7 { border-color: #ff5722; }
+.border-color-0 { border-color: #3498DB; }
+.border-color-1 { border-color: #E74C3C; }
+.border-color-2 { border-color: #2ECC71; }
+.border-color-3 { border-color: #F1C40F; }
+.border-color-4 { border-color: #9B59B6; }
+.border-color-5 { border-color: #E91E63; }
+.border-color-6 { border-color: #1ABC9C; }
+.border-color-7 { border-color: #E67E22; }
 
-/* 月曆區 */
+/* ==================== 月曆區 ==================== */
 .calendar-section {
     max-width: 900px;
     margin: 0 auto;
@@ -436,116 +784,122 @@ body {
 
 .calendar-header h2 {
     font-size: 1.5rem;
-    color: #202124;
+    color: var(--text-primary);
+    font-weight: 600;
 }
 
 .calendar-header button {
     padding: 10px 20px;
-    background: white;
-    border: 1px solid #ddd;
-    border-radius: 6px;
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: 8px;
     cursor: pointer;
     font-size: 14px;
-    color: #5f6368;
+    color: var(--text-secondary);
+    transition: all 0.2s;
 }
 
 .calendar-header button:hover {
-    background: #f1f3f4;
+    background: var(--bg-hover);
+    color: var(--text-primary);
+    border-color: var(--primary);
 }
 
 .calendar-weekdays {
     display: grid;
     grid-template-columns: repeat(7, 1fr);
-    background: white;
-    border-radius: 8px 8px 0 0;
-    border: 1px solid #e0e0e0;
-    border-bottom: none;
+    background: var(--bg-card);
+    border-radius: 12px 12px 0 0;
+    box-shadow: var(--shadow-sm);
 }
 
 .calendar-weekdays div {
     padding: 12px;
     text-align: center;
     font-weight: 500;
-    color: #5f6368;
+    color: var(--text-secondary);
     font-size: 14px;
 }
 
 .calendar-weekdays div:first-child {
-    color: #d93025;
+    color: #E07A5F;
 }
 
 .calendar-weekdays div:last-child {
-    color: #1a73e8;
+    color: #4A90A4;
 }
 
 .calendar-grid {
     display: grid;
     grid-template-columns: repeat(7, 1fr);
-    background: white;
-    border: 1px solid #e0e0e0;
-    border-radius: 0 0 8px 8px;
+    background: var(--bg-card);
+    border-radius: 0 0 12px 12px;
+    box-shadow: var(--shadow-md);
     table-layout: fixed;
 }
 
 .calendar-day {
     min-height: 80px;
     padding: 8px;
-    border: 1px solid #e0e0e0;
+    border: 1px solid var(--border-light);
     cursor: pointer;
-    transition: background 0.2s;
+    transition: all 0.2s;
     position: relative;
     min-width: 0;
+    background: var(--bg-card);
 }
 
 .calendar-day:hover {
-    background: #f1f3f4;
+    background: var(--bg-hover);
 }
 
 .calendar-day.empty {
-    background: #fafafa;
+    background: var(--bg-muted);
     cursor: default;
 }
 
 .calendar-day.empty:hover {
-    background: #fafafa;
+    background: var(--bg-muted);
 }
 
 .calendar-day .day-number {
     font-size: 14px;
     font-weight: 500;
-    color: #202124;
+    color: var(--text-primary);
 }
 
 .calendar-day.sunday .day-number {
-    color: #d93025;
+    color: #E07A5F;
 }
 
 .calendar-day.saturday .day-number {
-    color: #1a73e8;
+    color: #4A90A4;
 }
 
+/* 今天的樣式 - 使用主色強調 */
 .calendar-day.today {
-    background: #e8f0fe;
+    background: var(--primary-soft);
 }
 
 .calendar-day.today .day-number {
-    background: #1a73e8;
-    color: white;
+    background: var(--primary);
+    color: var(--text-on-primary);
     width: 28px;
     height: 28px;
     display: flex;
     align-items: center;
     justify-content: center;
     border-radius: 50%;
+    font-weight: 600;
 }
 
 .calendar-day.drag-over {
-    background: #e3f2fd !important;
-    border: 2px dashed #1a73e8 !important;
+    background: var(--primary-soft) !important;
+    border: 2px dashed var(--primary) !important;
     transform: scale(1.02);
 }
 
-/* 日曆項目（Google 日曆風格） */
+/* ==================== 日曆項目 ==================== */
 .calendar-day .day-items {
     display: flex;
     flex-direction: column;
@@ -556,7 +910,7 @@ body {
 
 .calendar-day .day-item {
     font-size: 11px;
-    padding: 2px 4px;
+    padding: 2px 6px;
     border-radius: 4px;
     overflow: hidden;
     text-overflow: ellipsis;
@@ -565,16 +919,13 @@ body {
     min-width: 0;
     max-width: 100%;
     display: block;
+    transition: opacity 0.2s;
 }
 
-.calendar-day .day-item.completed {
-    text-decoration: line-through;
-    opacity: 0.7;
-}
-
+/* 未完成項目 - 使用主色淡版 */
 .calendar-day .day-item.my-item {
-    background-color: #1a73e8;
-    color: white;
+    background-color: var(--primary);
+    color: var(--text-on-primary);
     cursor: grab;
 }
 
@@ -587,20 +938,31 @@ body {
     transform: scale(0.95);
 }
 
-.calendar-day .day-item.my-item.completed {
-    background-color: #34a853;
+/* 同一天內拖曳排序 - 目標項目樣式 */
+.calendar-day .day-item.my-item.drag-over-item {
+    border: 2px dashed var(--primary);
+    background-color: var(--primary-soft) !important;
+    transform: scale(1.02);
 }
 
-/* 項目顏色 */
-.calendar-day .day-item.item-color-red { background-color: #c5221f !important; }
-.calendar-day .day-item.item-color-orange { background-color: #e37400 !important; }
-.calendar-day .day-item.item-color-yellow { background-color: #f9ab00 !important; }
-.calendar-day .day-item.item-color-cyan { background-color: #00838f !important; }
-.calendar-day .day-item.item-color-blue { background-color: #1a73e8 !important; }
-.calendar-day .day-item.item-color-purple { background-color: #7627bb !important; }
-.calendar-day .day-item.item-color-pink { background-color: #c2185b !important; }
-.calendar-day .day-item.item-color-gray { background-color: #5f6368 !important; }
+/* 已完成項目 - 使用成長綠 */
+.calendar-day .day-item.my-item.completed {
+    background-color: var(--success);
+    text-decoration: line-through;
+    opacity: 0.85;
+}
 
+/* 項目顏色 - 鮮豔色調 */
+.calendar-day .day-item.item-color-red { background-color: #E74C3C !important; }
+.calendar-day .day-item.item-color-orange { background-color: #E67E22 !important; }
+.calendar-day .day-item.item-color-yellow { background-color: #F1C40F !important; }
+.calendar-day .day-item.item-color-cyan { background-color: #1ABC9C !important; }
+.calendar-day .day-item.item-color-blue { background-color: #3498DB !important; }
+.calendar-day .day-item.item-color-purple { background-color: #9B59B6 !important; }
+.calendar-day .day-item.item-color-pink { background-color: #E91E63 !important; }
+.calendar-day .day-item.item-color-gray { background-color: #7F8C8D !important; }
+
+/* 已完成項目統一使用成長綠 */
 .calendar-day .day-item.item-color-red.completed,
 .calendar-day .day-item.item-color-orange.completed,
 .calendar-day .day-item.item-color-yellow.completed,
@@ -609,46 +971,48 @@ body {
 .calendar-day .day-item.item-color-purple.completed,
 .calendar-day .day-item.item-color-pink.completed,
 .calendar-day .day-item.item-color-gray.completed {
-    background-color: #34a853 !important;
+    background-color: var(--success) !important;
 }
 
 /* 其他人的項目顏色 */
-.calendar-day .day-item.other-item-0 { background-color: #e8f0fe; color: #1a73e8; }
-.calendar-day .day-item.other-item-1 { background-color: #fce8e6; color: #c5221f; }
-.calendar-day .day-item.other-item-2 { background-color: #e6f4ea; color: #188038; }
-.calendar-day .day-item.other-item-3 { background-color: #fef7e0; color: #f9ab00; }
-.calendar-day .day-item.other-item-4 { background-color: #f3e8fd; color: #7627bb; }
-.calendar-day .day-item.other-item-5 { background-color: #fce4ec; color: #c2185b; }
-.calendar-day .day-item.other-item-6 { background-color: #e0f7fa; color: #00838f; }
-.calendar-day .day-item.other-item-7 { background-color: #fbe9e7; color: #d84315; }
+.calendar-day .day-item.other-item-0 { background-color: #EBF5FB; color: #2980B9; }
+.calendar-day .day-item.other-item-1 { background-color: #FDEDEC; color: #C0392B; }
+.calendar-day .day-item.other-item-2 { background-color: #E8F8EF; color: #27AE60; }
+.calendar-day .day-item.other-item-3 { background-color: #FEF9E7; color: #D4AC0D; }
+.calendar-day .day-item.other-item-4 { background-color: #F5EEF8; color: #8E44AD; }
+.calendar-day .day-item.other-item-5 { background-color: #FCE4EC; color: #C2185B; }
+.calendar-day .day-item.other-item-6 { background-color: #E8F6F3; color: #16A085; }
+.calendar-day .day-item.other-item-7 { background-color: #FDF2E9; color: #D35400; }
 
 .calendar-day .day-item-more {
     font-size: 10px;
-    color: #5f6368;
+    color: var(--text-secondary);
     padding: 1px 4px;
 }
 
-/* 彈窗 */
+/* ==================== 彈窗 ==================== */
 .modal {
     position: fixed;
     top: 0;
     left: 0;
     width: 100%;
     height: 100%;
-    background: rgba(0,0,0,0.5);
+    background: rgba(58, 58, 58, 0.4);
     display: flex;
     align-items: center;
     justify-content: center;
     z-index: 1000;
+    backdrop-filter: blur(2px);
 }
 
 .modal-content {
-    background: white;
+    background: var(--bg-card);
     padding: 24px;
-    border-radius: 12px;
+    border-radius: 16px;
     width: 90%;
     max-width: 400px;
     position: relative;
+    box-shadow: var(--shadow-lg);
 }
 
 .modal-content.modal-large {
@@ -663,44 +1027,55 @@ body {
     right: 16px;
     font-size: 24px;
     cursor: pointer;
-    color: #5f6368;
+    color: var(--text-secondary);
+    transition: color 0.2s;
+}
+
+.modal-close:hover {
+    color: var(--text-primary);
 }
 
 .modal-content h3 {
     font-size: 1.25rem;
-    color: #202124;
+    color: var(--text-primary);
     margin-bottom: 20px;
+    font-weight: 600;
 }
 
 .modal-body label {
     display: block;
     font-size: 14px;
-    color: #5f6368;
+    color: var(--text-secondary);
     margin-bottom: 8px;
 }
 
 .modal-body > input[type="text"] {
     width: 100%;
     padding: 12px;
-    border: 1px solid #ddd;
-    border-radius: 6px;
+    border: 1px solid var(--border);
+    border-radius: 8px;
     font-size: 14px;
     margin-bottom: 16px;
+    background: var(--bg-card);
+    color: var(--text-primary);
+    transition: border-color 0.2s;
 }
 
 .modal-body input[type="text"]:focus,
 .modal-body input[type="password"]:focus {
     outline: none;
-    border-color: #1a73e8;
+    border-color: var(--primary);
 }
 
 .modal-body input[type="password"] {
     width: 100%;
     padding: 12px;
-    border: 1px solid #ddd;
-    border-radius: 6px;
+    border: 1px solid var(--border);
+    border-radius: 8px;
     font-size: 14px;
     margin-bottom: 16px;
+    background: var(--bg-card);
+    color: var(--text-primary);
 }
 
 .modal-checkbox {
@@ -714,6 +1089,7 @@ body {
     width: 20px;
     height: 20px;
     cursor: pointer;
+    accent-color: var(--success);
 }
 
 .modal-checkbox label {
@@ -729,42 +1105,46 @@ body {
 .modal-buttons button {
     flex: 1;
     padding: 12px;
-    background: #1a73e8;
-    color: white;
+    background: var(--primary);
+    color: var(--text-on-primary);
     border: none;
-    border-radius: 6px;
+    border-radius: 8px;
     font-size: 14px;
     cursor: pointer;
+    font-weight: 500;
+    transition: background 0.2s;
 }
 
 .modal-buttons button:hover {
-    background: #1557b0;
+    background: var(--primary-hover);
 }
 
 .modal-buttons button.btn-secondary {
-    background: #34a853;
+    background: var(--success);
 }
 
 .modal-buttons button.btn-secondary:hover {
-    background: #2d8f47;
+    background: var(--success-hover);
 }
 
-.modal-body button:not(.btn-secondary):not(.item-delete):not(.item-toggle) {
+.modal-body button:not(.btn-secondary):not(.item-delete):not(.item-toggle):not(.item-apply):not(.item-edit) {
     width: 100%;
     padding: 12px;
-    background: #1a73e8;
-    color: white;
+    background: var(--primary);
+    color: var(--text-on-primary);
     border: none;
-    border-radius: 6px;
+    border-radius: 8px;
     font-size: 14px;
     cursor: pointer;
+    font-weight: 500;
+    transition: background 0.2s;
 }
 
-.modal-body button:not(.btn-secondary):not(.item-delete):not(.item-toggle):hover {
-    background: #1557b0;
+.modal-body button:not(.btn-secondary):not(.item-delete):not(.item-toggle):not(.item-apply):not(.item-edit):hover {
+    background: var(--primary-hover);
 }
 
-/* 項目列表樣式 */
+/* ==================== 項目列表樣式 ==================== */
 .items-list {
     margin-bottom: 16px;
     max-height: 300px;
@@ -775,66 +1155,99 @@ body {
     display: flex;
     align-items: center;
     gap: 10px;
-    padding: 10px;
-    background: #f8f9fa;
-    border-radius: 8px;
+    padding: 12px;
+    background: var(--bg-muted);
+    border-radius: 10px;
     margin-bottom: 8px;
+    transition: all 0.2s;
+    cursor: grab;
+}
+
+.item-row:hover {
+    background: var(--bg-hover);
 }
 
 .item-row.completed {
-    background: #e6f4ea;
+    background: var(--success-soft);
+}
+
+.item-row .item-drag-handle {
+    cursor: grab;
+    color: var(--text-secondary);
+    font-size: 12px;
+    padding: 0 4px;
+    user-select: none;
+    opacity: 0.5;
+    transition: opacity 0.2s;
+}
+
+.item-row:hover .item-drag-handle {
+    opacity: 1;
+}
+
+.item-row.dragging {
+    opacity: 0.5;
+    transform: scale(0.98);
+    cursor: grabbing;
+}
+
+.item-row.drag-over {
+    border: 2px dashed var(--primary);
+    background: var(--primary-soft) !important;
 }
 
 .item-text.completed {
     text-decoration: line-through;
-    color: #5f6368;
+    color: var(--text-secondary);
 }
 
 .item-checkbox {
     width: 20px;
     height: 20px;
     cursor: pointer;
-    accent-color: #34a853;
+    accent-color: var(--success);
     flex-shrink: 0;
 }
 
 .item-toggle {
     width: 24px;
     height: 24px;
-    border: 2px solid #ddd;
+    border: 2px solid var(--border);
     border-radius: 50%;
-    background: white;
+    background: var(--bg-card);
     cursor: pointer;
     display: flex;
     align-items: center;
     justify-content: center;
     flex-shrink: 0;
+    transition: all 0.2s;
 }
 
 .item-toggle:hover {
-    border-color: #1a73e8;
+    border-color: var(--primary);
 }
 
 .item-row.completed .item-toggle {
-    background: #34a853;
-    border-color: #34a853;
-    color: white;
+    background: var(--success);
+    border-color: var(--success);
+    color: var(--text-on-primary);
 }
 
 .item-text {
     flex: 1;
     font-size: 14px;
-    color: #202124;
+    color: var(--text-primary);
 }
 
-.item-text.item-color-red { border-left: 3px solid #c5221f; padding-left: 8px; }
-.item-text.item-color-orange { border-left: 3px solid #e37400; padding-left: 8px; }
-.item-text.item-color-yellow { border-left: 3px solid #f9ab00; padding-left: 8px; }
-.item-text.item-color-cyan { border-left: 3px solid #00838f; padding-left: 8px; }
-.item-text.item-color-blue { border-left: 3px solid #1a73e8; padding-left: 8px; }
-.item-text.item-color-purple { border-left: 3px solid #7627bb; padding-left: 8px; }
-.item-text.item-color-pink { border-left: 3px solid #c2185b; padding-left: 8px; }
-.item-text.item-color-gray { border-left: 3px solid #5f6368; padding-left: 8px; }
+/* 項目文字顏色標記 - 鮮豔色調 */
+.item-text.item-color-red { border-left: 3px solid #E74C3C; padding-left: 8px; }
+.item-text.item-color-orange { border-left: 3px solid #E67E22; padding-left: 8px; }
+.item-text.item-color-yellow { border-left: 3px solid #F1C40F; padding-left: 8px; }
+.item-text.item-color-cyan { border-left: 3px solid #1ABC9C; padding-left: 8px; }
+.item-text.item-color-blue { border-left: 3px solid #3498DB; padding-left: 8px; }
+.item-text.item-color-purple { border-left: 3px solid #9B59B6; padding-left: 8px; }
+.item-text.item-color-pink { border-left: 3px solid #E91E63; padding-left: 8px; }
+.item-text.item-color-gray { border-left: 3px solid #7F8C8D; padding-left: 8px; }
 
 .item-actions {
     display: flex;
@@ -849,31 +1262,32 @@ body {
     height: 28px;
     border: none;
     background: transparent;
-    color: #5f6368;
+    color: var(--text-secondary);
     cursor: pointer;
     border-radius: 50%;
     font-size: 14px;
     display: flex;
     align-items: center;
     justify-content: center;
+    transition: all 0.2s;
 }
 
 .item-apply:hover {
-    background: #e6f4ea;
-    color: #34a853;
+    background: var(--success-soft);
+    color: var(--success);
 }
 
 .item-edit:hover {
-    background: #e8f0fe;
-    color: #1a73e8;
+    background: var(--primary-soft);
+    color: var(--primary);
 }
 
 .item-delete:hover {
-    background: #fce8e6;
-    color: #d93025;
+    background: rgba(196, 92, 74, 0.1);
+    color: #C45C4A;
 }
 
-/* 新增項目區 */
+/* ==================== 新增項目區 ==================== */
 .add-item-section {
     display: flex;
     flex-direction: column;
@@ -883,42 +1297,47 @@ body {
 
 .add-item-section input[type="text"] {
     width: 100%;
-    padding: 10px 12px;
-    border: 1px solid #ddd;
-    border-radius: 6px;
+    padding: 12px;
+    border: 1px solid var(--border);
+    border-radius: 8px;
     font-size: 14px;
     margin-bottom: 0;
+    background: var(--bg-card);
+    color: var(--text-primary);
+    transition: border-color 0.2s;
 }
 
 .add-item-section input[type="text"]:focus {
     outline: none;
-    border-color: #1a73e8;
+    border-color: var(--primary);
 }
 
 .add-item-section button {
     width: 100%;
-    padding: 10px 20px;
-    background: #1a73e8;
-    color: white;
+    padding: 12px 20px;
+    background: var(--primary);
+    color: var(--text-on-primary);
     border: none;
-    border-radius: 6px;
+    border-radius: 8px;
     cursor: pointer;
     font-size: 14px;
+    font-weight: 500;
+    transition: background 0.2s;
 }
 
 .add-item-section button:hover {
-    background: #1557b0;
+    background: var(--primary-hover);
 }
 
 .add-item-section button.btn-secondary {
-    background: #34a853;
+    background: var(--success);
 }
 
 .add-item-section button.btn-secondary:hover {
-    background: #2d8f47;
+    background: var(--success-hover);
 }
 
-/* 顏色選擇器 */
+/* ==================== 顏色選擇器 ==================== */
 .color-picker {
     display: flex;
     align-items: center;
@@ -928,7 +1347,7 @@ body {
 
 .color-label {
     font-size: 14px;
-    color: #5f6368;
+    color: var(--text-secondary);
 }
 
 .color-options {
@@ -950,11 +1369,11 @@ body {
 }
 
 .color-option.selected {
-    border-color: #202124;
+    border-color: var(--text-primary);
     transform: scale(1.1);
 }
 
-/* 編輯按鈕區 */
+/* ==================== 編輯按鈕區 ==================== */
 .edit-buttons {
     display: flex;
     flex-direction: column;
@@ -966,51 +1385,55 @@ body {
     width: 100%;
     padding: 12px;
     border: none;
-    border-radius: 6px;
+    border-radius: 8px;
     cursor: pointer;
     font-size: 14px;
+    font-weight: 500;
+    transition: background 0.2s;
 }
 
 .edit-buttons button:first-child {
-    background: #1a73e8;
-    color: white;
+    background: var(--primary);
+    color: var(--text-on-primary);
 }
 
 .edit-buttons button:first-child:hover {
-    background: #1557b0;
+    background: var(--primary-hover);
 }
 
 .edit-buttons button.btn-secondary {
-    background: #34a853;
-    color: white;
+    background: var(--success);
+    color: var(--text-on-primary);
 }
 
 .edit-buttons button.btn-secondary:hover {
-    background: #2d8f47;
+    background: var(--success-hover);
 }
 
-/* 套用區 */
+/* ==================== 套用區 ==================== */
 .apply-section {
-    border-top: 1px solid #e0e0e0;
+    border-top: 1px solid var(--border);
     padding-top: 16px;
 }
 
 .apply-section .btn-secondary {
     width: 100%;
     padding: 12px;
-    background: #34a853;
-    color: white;
+    background: var(--success);
+    color: var(--text-on-primary);
     border: none;
-    border-radius: 6px;
+    border-radius: 8px;
     font-size: 14px;
     cursor: pointer;
+    font-weight: 500;
+    transition: background 0.2s;
 }
 
 .apply-section .btn-secondary:hover {
-    background: #2d8f47;
+    background: var(--success-hover);
 }
 
-/* RWD 手機版 */
+/* ==================== RWD 手機版 ==================== */
 @media (max-width: 600px) {
     .header {
         flex-direction: column;
@@ -1022,6 +1445,23 @@ body {
         width: 100%;
         display: flex;
         justify-content: center;
+    }
+
+    .yearly-goal-section {
+        padding: 12px 12px 0;
+    }
+
+    .yearly-goal-card {
+        padding: 16px;
+    }
+
+    .year-goal-input-area {
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    .year-goal-input-area input[type="text"] {
+        min-width: auto;
     }
 
     .goals-section {

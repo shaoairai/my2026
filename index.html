@@ -41,21 +41,64 @@
         </div>
       </header>
 
+      <!-- 年度目標區 -->
+      <section class="yearly-goal-section">
+        <div class="yearly-goal-card">
+          <h3>🎯 年度目標</h3>
+          <div id="yearGoalsList" class="year-goals-list"></div>
+          <div class="year-goal-input-area">
+            <input
+              type="text"
+              id="yearGoalInput"
+              placeholder="輸入年度目標..."
+            />
+            <div class="color-picker">
+              <span class="color-label">顏色：</span>
+              <div class="color-options" id="yearGoalColorPicker">
+                <span class="color-option selected" data-color="blue" style="background:#1a73e8" title="藍色"></span>
+                <span class="color-option" data-color="red" style="background:#c5221f" title="紅色"></span>
+                <span class="color-option" data-color="orange" style="background:#e37400" title="橘色"></span>
+                <span class="color-option" data-color="yellow" style="background:#f9ab00" title="黃色"></span>
+                <span class="color-option" data-color="cyan" style="background:#00838f" title="青色"></span>
+                <span class="color-option" data-color="purple" style="background:#7627bb" title="紫色"></span>
+                <span class="color-option" data-color="pink" style="background:#c2185b" title="粉色"></span>
+                <span class="color-option" data-color="gray" style="background:#5f6368" title="灰色"></span>
+              </div>
+            </div>
+            <button id="addYearGoalBtn">新增</button>
+          </div>
+        </div>
+      </section>
+
       <!-- 目標設定區 -->
       <section class="goals-section">
         <div class="goal-card goal-card-large">
-          <h3>📅 月目標</h3>
+          <h3 id="monthGoalTitle">📅 月目標</h3>
           <div id="monthGoalsList" class="goal-items-list"></div>
-          <div class="goal-input-group">
+          <div class="month-goal-input-area">
             <input
               type="text"
               id="monthGoalInput"
               placeholder="輸入本月目標..."
             />
+            <div class="color-picker">
+              <span class="color-label">顏色：</span>
+              <div class="color-options" id="monthGoalColorPicker">
+                <span class="color-option selected" data-color="blue" style="background:#1a73e8" title="藍色"></span>
+                <span class="color-option" data-color="red" style="background:#c5221f" title="紅色"></span>
+                <span class="color-option" data-color="orange" style="background:#e37400" title="橘色"></span>
+                <span class="color-option" data-color="yellow" style="background:#f9ab00" title="黃色"></span>
+                <span class="color-option" data-color="cyan" style="background:#00838f" title="青色"></span>
+                <span class="color-option" data-color="purple" style="background:#7627bb" title="紫色"></span>
+                <span class="color-option" data-color="pink" style="background:#c2185b" title="粉色"></span>
+                <span class="color-option" data-color="gray" style="background:#5f6368" title="灰色"></span>
+              </div>
+            </div>
             <button id="addMonthGoalBtn">新增</button>
           </div>
         </div>
-        <div class="goal-card goal-card-large">
+        <!-- 週目標暫時隱藏 -->
+        <div class="goal-card goal-card-large hidden">
           <h3>📆 週目標</h3>
           <div id="weekGoalsList" class="goal-items-list"></div>
           <div class="goal-input-group">
@@ -159,6 +202,64 @@
               <button id="saveEditBtn">儲存</button>
               <button id="saveAndApplyEditBtn" class="btn-secondary">修改並套用到全月</button>
             </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 編輯月目標彈窗 -->
+      <div id="editMonthGoalModal" class="modal hidden">
+        <div class="modal-content">
+          <span class="modal-close" id="closeEditMonthGoalModal">&times;</span>
+          <h3>編輯月目標</h3>
+          <div class="modal-body">
+            <input
+              type="text"
+              id="editMonthGoalInput"
+              placeholder="月目標..."
+            />
+            <div class="color-picker">
+              <span class="color-label">顏色：</span>
+              <div class="color-options" id="editMonthGoalColorPicker">
+                <span class="color-option selected" data-color="blue" style="background:#1a73e8" title="藍色"></span>
+                <span class="color-option" data-color="red" style="background:#c5221f" title="紅色"></span>
+                <span class="color-option" data-color="orange" style="background:#e37400" title="橘色"></span>
+                <span class="color-option" data-color="yellow" style="background:#f9ab00" title="黃色"></span>
+                <span class="color-option" data-color="cyan" style="background:#00838f" title="青色"></span>
+                <span class="color-option" data-color="purple" style="background:#7627bb" title="紫色"></span>
+                <span class="color-option" data-color="pink" style="background:#c2185b" title="粉色"></span>
+                <span class="color-option" data-color="gray" style="background:#5f6368" title="灰色"></span>
+              </div>
+            </div>
+            <button id="saveEditMonthGoalBtn">儲存</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- 編輯年度目標彈窗 -->
+      <div id="editYearGoalModal" class="modal hidden">
+        <div class="modal-content">
+          <span class="modal-close" id="closeEditYearGoalModal">&times;</span>
+          <h3>編輯年度目標</h3>
+          <div class="modal-body">
+            <input
+              type="text"
+              id="editYearGoalInput"
+              placeholder="年度目標..."
+            />
+            <div class="color-picker">
+              <span class="color-label">顏色：</span>
+              <div class="color-options" id="editYearGoalColorPicker">
+                <span class="color-option selected" data-color="blue" style="background:#1a73e8" title="藍色"></span>
+                <span class="color-option" data-color="red" style="background:#c5221f" title="紅色"></span>
+                <span class="color-option" data-color="orange" style="background:#e37400" title="橘色"></span>
+                <span class="color-option" data-color="yellow" style="background:#f9ab00" title="黃色"></span>
+                <span class="color-option" data-color="cyan" style="background:#00838f" title="青色"></span>
+                <span class="color-option" data-color="purple" style="background:#7627bb" title="紫色"></span>
+                <span class="color-option" data-color="pink" style="background:#c2185b" title="粉色"></span>
+                <span class="color-option" data-color="gray" style="background:#5f6368" title="灰色"></span>
+              </div>
+            </div>
+            <button id="saveEditYearGoalBtn">儲存</button>
           </div>
         </div>
       </div>

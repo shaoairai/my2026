@@ -75,6 +75,26 @@ const saveAndApplyEditBtn = document.getElementById('saveAndApplyEditBtn');
 const newItemColorPicker = document.getElementById('newItemColorPicker');
 const editItemColorPicker = document.getElementById('editItemColorPicker');
 
+const yearGoalInput = document.getElementById('yearGoalInput');
+const addYearGoalBtn = document.getElementById('addYearGoalBtn');
+const yearGoalsList = document.getElementById('yearGoalsList');
+const yearGoalColorPicker = document.getElementById('yearGoalColorPicker');
+
+const monthGoalTitle = document.getElementById('monthGoalTitle');
+const monthGoalColorPicker = document.getElementById('monthGoalColorPicker');
+
+const editMonthGoalModal = document.getElementById('editMonthGoalModal');
+const closeEditMonthGoalModal = document.getElementById('closeEditMonthGoalModal');
+const editMonthGoalInput = document.getElementById('editMonthGoalInput');
+const editMonthGoalColorPicker = document.getElementById('editMonthGoalColorPicker');
+const saveEditMonthGoalBtn = document.getElementById('saveEditMonthGoalBtn');
+
+const editYearGoalModal = document.getElementById('editYearGoalModal');
+const closeEditYearGoalModal = document.getElementById('closeEditYearGoalModal');
+const editYearGoalInput = document.getElementById('editYearGoalInput');
+const editYearGoalColorPicker = document.getElementById('editYearGoalColorPicker');
+const saveEditYearGoalBtn = document.getElementById('saveEditYearGoalBtn');
+
 const passwordModal = document.getElementById('passwordModal');
 const closePasswordModal = document.getElementById('closePasswordModal');
 const currentPasswordInput = document.getElementById('currentPasswordInput');
@@ -88,12 +108,24 @@ let editingItemId = null;
 let editingItemOriginalText = null;
 let editingItemOriginalColor = null;
 
+// 編輯中的年度目標資訊
+let editingYearGoalId = null;
+let selectedEditYearGoalColor = 'blue';
+
+// 編輯中的月目標資訊
+let editingMonthGoalId = null;
+let selectedEditMonthGoalColor = 'blue';
+let selectedMonthGoalColor = 'blue';
+
 // 拖曳中的項目資訊
 let draggedItem = null;
+let draggedYearGoal = null;
+let draggedMonthGoal = null;
 
 // 目前選擇的顏色
 let selectedNewItemColor = 'blue';
 let selectedEditItemColor = 'blue';
+let selectedYearGoalColor = 'blue';
 
 // ==================== 初始化白名單 ====================
 
@@ -187,6 +219,7 @@ function showMainPage() {
 
     // 初始化頁面
     initCalendar();
+    loadYearGoals();
     loadMonthGoal();
     loadWeekGoal();
     setupRealtimeListeners();
@@ -371,6 +404,15 @@ function renderCalendar() {
     updateCalendarStatus();
 }
 
+// 取得日期項目排序後的 ID 列表
+function getDayItemsSorted(items) {
+    return Object.keys(items).sort((a, b) => {
+        const orderA = items[a].order ?? 999999;
+        const orderB = items[b].order ?? 999999;
+        return orderA - orderB;
+    });
+}
+
 // 更新日曆上的項目顯示
 function updateCalendarStatus() {
     const days = calendarGrid.querySelectorAll('.calendar-day:not(.empty)');
@@ -388,10 +430,10 @@ function updateCalendarStatus() {
         if (dayItemsContainer) {
             dayItemsContainer.innerHTML = '';
 
-            // 顯示所有項目
-            const itemKeys = Object.keys(items);
+            // 按 order 排序顯示項目
+            const sortedItemIds = getDayItemsSorted(items);
 
-            itemKeys.forEach(itemId => {
+            sortedItemIds.forEach(itemId => {
                 const item = items[itemId];
                 const itemDiv = document.createElement('div');
                 const colorClass = item.color ? ` item-color-${item.color}` : '';
@@ -420,6 +462,30 @@ function updateCalendarStatus() {
                 });
 
                 itemDiv.addEventListener('dragend', handleCalendarItemDragEnd);
+
+                // 同一天內拖曳排序
+                itemDiv.addEventListener('dragover', (e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    if (draggedItem && draggedItem.sourceDate === dateKey && itemDiv.dataset.itemId !== draggedItem.itemId) {
+                        itemDiv.classList.add('drag-over-item');
+                    }
+                });
+
+                itemDiv.addEventListener('dragleave', (e) => {
+                    itemDiv.classList.remove('drag-over-item');
+                });
+
+                itemDiv.addEventListener('drop', async (e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    itemDiv.classList.remove('drag-over-item');
+
+                    if (draggedItem && draggedItem.sourceDate === dateKey && itemDiv.dataset.itemId !== draggedItem.itemId) {
+                        await reorderDayItems(dateKey, draggedItem.itemId, itemDiv.dataset.itemId);
+                        draggedItem = null;
+                    }
+                });
 
                 // 點擊時打開該日的彈窗（只有在沒有拖曳時）
                 itemDiv.addEventListener('click', (e) => {
@@ -488,6 +554,9 @@ function openDailyModal(dateKey) {
     dailyModal.classList.remove('hidden');
 }
 
+// 彈窗內拖曳的項目
+let draggedModalItem = null;
+
 // 渲染項目列表
 function renderItemsList() {
     if (!selectedDate) return;
@@ -497,12 +566,18 @@ function renderItemsList() {
 
     itemsList.innerHTML = '';
 
-    Object.keys(items).forEach(itemId => {
+    // 按 order 排序
+    const sortedItemIds = getDayItemsSorted(items);
+
+    sortedItemIds.forEach(itemId => {
         const item = items[itemId];
         const itemRow = document.createElement('div');
         itemRow.className = 'item-row';
+        itemRow.draggable = true;
+        itemRow.dataset.id = itemId;
         const colorClass = item.color ? ` item-color-${item.color}` : '';
         itemRow.innerHTML = `
+            <span class="item-drag-handle">⋮⋮</span>
             <input type="checkbox" class="item-checkbox" data-id="${itemId}" ${item.completed ? 'checked' : ''} />
             <span class="item-text${item.completed ? ' completed' : ''}${colorClass}" data-color="${item.color || ''}">${item.text}</span>
             <div class="item-actions">
@@ -511,6 +586,40 @@ function renderItemsList() {
                 <button class="item-delete" data-id="${itemId}" title="刪除">×</button>
             </div>
         `;
+
+        // 拖曳事件
+        itemRow.addEventListener('dragstart', (e) => {
+            draggedModalItem = itemRow;
+            itemRow.classList.add('dragging');
+            e.dataTransfer.effectAllowed = 'move';
+        });
+
+        itemRow.addEventListener('dragend', () => {
+            draggedModalItem = null;
+            itemRow.classList.remove('dragging');
+            document.querySelectorAll('.item-row.drag-over').forEach(el => el.classList.remove('drag-over'));
+        });
+
+        itemRow.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            if (draggedModalItem && draggedModalItem !== itemRow) {
+                itemRow.classList.add('drag-over');
+            }
+        });
+
+        itemRow.addEventListener('dragleave', () => {
+            itemRow.classList.remove('drag-over');
+        });
+
+        itemRow.addEventListener('drop', async (e) => {
+            e.preventDefault();
+            itemRow.classList.remove('drag-over');
+            if (draggedModalItem && draggedModalItem !== itemRow) {
+                const fromId = draggedModalItem.dataset.id;
+                const toId = itemRow.dataset.id;
+                await reorderDayItems(selectedDate, fromId, toId);
+            }
+        });
 
         itemsList.appendChild(itemRow);
     });
@@ -562,12 +671,19 @@ async function addItem() {
     }
 
     try {
+        // 計算新項目的 order（放在最後）
+        const items = dailyGoalsData[selectedDate]?.items || {};
+        const maxOrder = Object.values(items).reduce((max, item) => {
+            return Math.max(max, item.order ?? 0);
+        }, -1);
+
         // 產生唯一 ID
         const itemId = Date.now().toString();
         const itemRef = ref(db, `users/${currentUser}/dailyGoals/${selectedDate}/items/${itemId}`);
         const itemData = {
             text: text,
-            completed: false
+            completed: false,
+            order: maxOrder + 1
         };
         if (selectedNewItemColor && selectedNewItemColor !== 'blue') {
             itemData.color = selectedNewItemColor;
@@ -671,9 +787,17 @@ addAndApplyBtn.addEventListener('click', async () => {
         for (let day = 1; day <= daysInMonth; day++) {
             const dateKey = getDateKey(currentYear, currentMonth, day);
             const newItemId = Date.now().toString() + '_' + day;
+
+            // 計算該日的最大 order
+            const dayItems = dailyGoalsData[dateKey]?.items || {};
+            const maxOrder = Object.values(dayItems).reduce((max, item) => {
+                return Math.max(max, item.order ?? 0);
+            }, -1);
+
             const itemData = {
                 text: text,
-                completed: false
+                completed: false,
+                order: maxOrder + 1
             };
             if (selectedNewItemColor && selectedNewItemColor !== 'blue') {
                 itemData.color = selectedNewItemColor;
@@ -759,12 +883,18 @@ async function handleDayDrop(e) {
     }
 
     try {
+        // 計算目標日期的最大 order
+        const maxOrder = Object.values(targetItems).reduce((max, item) => {
+            return Math.max(max, item.order ?? 0);
+        }, -1);
+
         // 在目標日期新增項目
         const newItemId = Date.now().toString();
         const newItemRef = ref(db, `users/${currentUser}/dailyGoals/${targetDate}/items/${newItemId}`);
         const newItemData = {
             text: draggedItem.text,
-            completed: draggedItem.completed
+            completed: draggedItem.completed,
+            order: maxOrder + 1
         };
         if (draggedItem.color) {
             newItemData.color = draggedItem.color;
@@ -780,6 +910,35 @@ async function handleDayDrop(e) {
     }
 
     draggedItem = null;
+}
+
+// 同一天內重新排序項目
+async function reorderDayItems(dateKey, fromId, toId) {
+    if (!currentUser) return;
+
+    const items = dailyGoalsData[dateKey]?.items || {};
+    const sortedIds = getDayItemsSorted(items);
+    const fromIndex = sortedIds.indexOf(fromId);
+    const toIndex = sortedIds.indexOf(toId);
+
+    if (fromIndex === -1 || toIndex === -1) return;
+
+    // 移動元素
+    sortedIds.splice(fromIndex, 1);
+    sortedIds.splice(toIndex, 0, fromId);
+
+    // 更新所有項目的 order
+    const updates = {};
+    sortedIds.forEach((id, index) => {
+        updates[`${dateKey}/items/${id}/order`] = index;
+    });
+
+    try {
+        const dailyGoalsRef = ref(db, `users/${currentUser}/dailyGoals`);
+        await update(dailyGoalsRef, updates);
+    } catch (error) {
+        console.error('重新排序項目失敗:', error);
+    }
 }
 
 // 格式化日期顯示
@@ -808,10 +967,16 @@ async function applyItemToMonth(text, color) {
             // 檢查該日是否已有相同名稱的項目
             const hasItem = Object.values(items).some(item => item.text === text);
             if (!hasItem) {
+                // 計算該日的最大 order
+                const maxOrder = Object.values(items).reduce((max, item) => {
+                    return Math.max(max, item.order ?? 0);
+                }, -1);
+
                 const newItemId = Date.now().toString() + '_' + day;
                 const itemData = {
                     text: text,
-                    completed: false
+                    completed: false,
+                    order: maxOrder + 1
                 };
                 if (color && color !== 'blue') {
                     itemData.color = color;
@@ -973,12 +1138,292 @@ saveAndApplyEditBtn.addEventListener('click', async () => {
     }
 });
 
+// ==================== 年度目標（多項目） ====================
+
+let yearGoalsData = {};
+
+async function loadYearGoals() {
+    if (!currentUser) return;
+
+    const yearKey = currentYear.toString();
+    const yearGoalsRef = ref(db, `users/${currentUser}/yearlyGoals/${yearKey}/items`);
+
+    try {
+        const snapshot = await get(yearGoalsRef);
+        if (snapshot.exists()) {
+            yearGoalsData = snapshot.val();
+        } else {
+            yearGoalsData = {};
+        }
+        renderYearGoalsList();
+    } catch (error) {
+        console.error('讀取年度目標失敗:', error);
+    }
+}
+
+function getYearGoalsSorted() {
+    // 按 order 排序，沒有 order 的放最後
+    return Object.keys(yearGoalsData).sort((a, b) => {
+        const orderA = yearGoalsData[a].order ?? 999999;
+        const orderB = yearGoalsData[b].order ?? 999999;
+        return orderA - orderB;
+    });
+}
+
+function renderYearGoalsList() {
+    yearGoalsList.innerHTML = '';
+
+    const sortedIds = getYearGoalsSorted();
+
+    sortedIds.forEach(itemId => {
+        const item = yearGoalsData[itemId];
+        const colorClass = item.color ? ` color-${item.color}` : ' color-blue';
+        const goalItem = document.createElement('div');
+        goalItem.className = `year-goal-item${item.completed ? ' completed' : ''}${colorClass}`;
+        goalItem.draggable = true;
+        goalItem.dataset.id = itemId;
+        goalItem.innerHTML = `
+            <span class="year-goal-drag-handle">⋮⋮</span>
+            <input type="checkbox" class="year-goal-checkbox" data-id="${itemId}" ${item.completed ? 'checked' : ''} />
+            <span class="year-goal-text" data-id="${itemId}">${item.text}</span>
+            <button class="year-goal-delete" data-id="${itemId}">×</button>
+        `;
+        yearGoalsList.appendChild(goalItem);
+
+        // 拖曳事件
+        goalItem.addEventListener('dragstart', (e) => {
+            draggedYearGoal = goalItem;
+            goalItem.classList.add('dragging');
+            e.dataTransfer.effectAllowed = 'move';
+        });
+
+        goalItem.addEventListener('dragend', () => {
+            draggedYearGoal = null;
+            goalItem.classList.remove('dragging');
+            document.querySelectorAll('.year-goal-item.drag-over').forEach(el => el.classList.remove('drag-over'));
+        });
+
+        goalItem.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            if (draggedYearGoal && draggedYearGoal !== goalItem) {
+                goalItem.classList.add('drag-over');
+            }
+        });
+
+        goalItem.addEventListener('dragleave', () => {
+            goalItem.classList.remove('drag-over');
+        });
+
+        goalItem.addEventListener('drop', async (e) => {
+            e.preventDefault();
+            goalItem.classList.remove('drag-over');
+            if (draggedYearGoal && draggedYearGoal !== goalItem) {
+                const fromId = draggedYearGoal.dataset.id;
+                const toId = goalItem.dataset.id;
+                await reorderYearGoals(fromId, toId);
+            }
+        });
+    });
+
+    // 綁定事件
+    yearGoalsList.querySelectorAll('.year-goal-checkbox').forEach(cb => {
+        cb.addEventListener('change', (e) => {
+            e.stopPropagation();
+            toggleYearGoalItem(e.target.dataset.id, e.target.checked);
+        });
+    });
+    yearGoalsList.querySelectorAll('.year-goal-delete').forEach(btn => {
+        btn.addEventListener('click', (e) => {
+            e.stopPropagation();
+            deleteYearGoalItem(e.target.dataset.id);
+        });
+    });
+    yearGoalsList.querySelectorAll('.year-goal-text').forEach(text => {
+        text.addEventListener('click', (e) => {
+            e.stopPropagation();
+            openEditYearGoalModal(e.target.dataset.id);
+        });
+    });
+}
+
+async function reorderYearGoals(fromId, toId) {
+    const sortedIds = getYearGoalsSorted();
+    const fromIndex = sortedIds.indexOf(fromId);
+    const toIndex = sortedIds.indexOf(toId);
+
+    // 移動元素
+    sortedIds.splice(fromIndex, 1);
+    sortedIds.splice(toIndex, 0, fromId);
+
+    // 更新所有項目的 order
+    const yearKey = currentYear.toString();
+    const updates = {};
+    sortedIds.forEach((id, index) => {
+        updates[`users/${currentUser}/yearlyGoals/${yearKey}/items/${id}/order`] = index;
+    });
+
+    try {
+        await update(ref(db), updates);
+        await loadYearGoals();
+    } catch (error) {
+        console.error('重新排序失敗:', error);
+    }
+}
+
+function openEditYearGoalModal(itemId) {
+    const item = yearGoalsData[itemId];
+    if (!item) return;
+
+    editingYearGoalId = itemId;
+    editYearGoalInput.value = item.text;
+    selectedEditYearGoalColor = item.color || 'blue';
+
+    // 更新顏色選擇器
+    editYearGoalColorPicker.querySelectorAll('.color-option').forEach(opt => {
+        opt.classList.toggle('selected', opt.dataset.color === selectedEditYearGoalColor);
+    });
+
+    editYearGoalModal.classList.remove('hidden');
+}
+
+async function saveEditYearGoal() {
+    if (!editingYearGoalId || !currentUser) return;
+
+    const newText = editYearGoalInput.value.trim();
+    if (!newText) {
+        alert('請輸入年度目標');
+        return;
+    }
+
+    const yearKey = currentYear.toString();
+    const itemRef = ref(db, `users/${currentUser}/yearlyGoals/${yearKey}/items/${editingYearGoalId}`);
+
+    try {
+        const updateData = { text: newText };
+        if (selectedEditYearGoalColor) {
+            updateData.color = selectedEditYearGoalColor;
+        }
+        await update(itemRef, updateData);
+        editYearGoalModal.classList.add('hidden');
+        editingYearGoalId = null;
+        await loadYearGoals();
+    } catch (error) {
+        console.error('更新年度目標失敗:', error);
+        alert('更新失敗，請稍後再試');
+    }
+}
+
+async function addYearGoalItem() {
+    if (!currentUser) return;
+
+    const text = yearGoalInput.value.trim();
+    if (!text) {
+        alert('請輸入年度目標');
+        return;
+    }
+
+    const yearKey = currentYear.toString();
+    const itemId = Date.now().toString();
+    const itemRef = ref(db, `users/${currentUser}/yearlyGoals/${yearKey}/items/${itemId}`);
+
+    // 計算新項目的 order（放在最後）
+    const maxOrder = Object.values(yearGoalsData).reduce((max, item) => {
+        return Math.max(max, item.order ?? 0);
+    }, -1);
+
+    try {
+        const itemData = { text: text, completed: false, order: maxOrder + 1 };
+        if (selectedYearGoalColor && selectedYearGoalColor !== 'blue') {
+            itemData.color = selectedYearGoalColor;
+        }
+        await set(itemRef, itemData);
+        yearGoalInput.value = '';
+        await loadYearGoals();
+    } catch (error) {
+        console.error('新增年度目標失敗:', error);
+        alert('新增失敗，請稍後再試');
+    }
+}
+
+async function toggleYearGoalItem(itemId, completed) {
+    if (!currentUser) return;
+
+    const yearKey = currentYear.toString();
+    const itemRef = ref(db, `users/${currentUser}/yearlyGoals/${yearKey}/items/${itemId}`);
+
+    try {
+        await update(itemRef, { completed: completed });
+        await loadYearGoals();
+    } catch (error) {
+        console.error('更新年度目標狀態失敗:', error);
+    }
+}
+
+async function deleteYearGoalItem(itemId) {
+    if (!currentUser) return;
+    if (!confirm('確定要刪除此年度目標嗎？')) return;
+
+    const yearKey = currentYear.toString();
+    const itemRef = ref(db, `users/${currentUser}/yearlyGoals/${yearKey}/items/${itemId}`);
+
+    try {
+        await set(itemRef, null);
+        await loadYearGoals();
+    } catch (error) {
+        console.error('刪除年度目標失敗:', error);
+    }
+}
+
+// 年度目標顏色選擇
+yearGoalColorPicker.querySelectorAll('.color-option').forEach(option => {
+    option.addEventListener('click', (e) => {
+        yearGoalColorPicker.querySelectorAll('.color-option').forEach(o => o.classList.remove('selected'));
+        e.target.classList.add('selected');
+        selectedYearGoalColor = e.target.dataset.color;
+    });
+});
+
+// 年度目標按鈕事件
+addYearGoalBtn.addEventListener('click', addYearGoalItem);
+yearGoalInput.addEventListener('keypress', (e) => {
+    if (e.key === 'Enter') addYearGoalItem();
+});
+
+// 編輯年度目標彈窗事件
+closeEditYearGoalModal.addEventListener('click', () => {
+    editYearGoalModal.classList.add('hidden');
+    editingYearGoalId = null;
+});
+
+editYearGoalModal.addEventListener('click', (e) => {
+    if (e.target === editYearGoalModal) {
+        editYearGoalModal.classList.add('hidden');
+        editingYearGoalId = null;
+    }
+});
+
+editYearGoalColorPicker.querySelectorAll('.color-option').forEach(option => {
+    option.addEventListener('click', (e) => {
+        editYearGoalColorPicker.querySelectorAll('.color-option').forEach(o => o.classList.remove('selected'));
+        e.target.classList.add('selected');
+        selectedEditYearGoalColor = e.target.dataset.color;
+    });
+});
+
+saveEditYearGoalBtn.addEventListener('click', saveEditYearGoal);
+editYearGoalInput.addEventListener('keypress', (e) => {
+    if (e.key === 'Enter') saveEditYearGoal();
+});
+
 // ==================== 月目標（多項目） ====================
 
 let monthGoalsData = {};
 
 async function loadMonthGoal() {
     if (!currentUser) return;
+
+    // 更新月目標標題
+    monthGoalTitle.textContent = `📅 ${currentMonth + 1}月目標`;
 
     const monthKey = getMonthKey(currentYear, currentMonth);
     const monthGoalRef = ref(db, `users/${currentUser}/monthlyGoals/${monthKey}/items`);
@@ -996,28 +1441,156 @@ async function loadMonthGoal() {
     }
 }
 
+function getMonthGoalsSorted() {
+    // 按 order 排序，沒有 order 的放最後
+    return Object.keys(monthGoalsData).sort((a, b) => {
+        const orderA = monthGoalsData[a].order ?? 999999;
+        const orderB = monthGoalsData[b].order ?? 999999;
+        return orderA - orderB;
+    });
+}
+
 function renderMonthGoalsList() {
     monthGoalsList.innerHTML = '';
 
-    Object.keys(monthGoalsData).forEach(itemId => {
+    const sortedIds = getMonthGoalsSorted();
+
+    sortedIds.forEach(itemId => {
         const item = monthGoalsData[itemId];
+        const colorClass = item.color ? ` color-${item.color}` : ' color-blue';
         const row = document.createElement('div');
-        row.className = 'goal-item-row';
+        row.className = `goal-item-row${item.completed ? ' completed' : ''}${colorClass}`;
+        row.draggable = true;
+        row.dataset.id = itemId;
         row.innerHTML = `
-            <input type="checkbox" data-id="${itemId}" ${item.completed ? 'checked' : ''} />
-            <span class="goal-item-text${item.completed ? ' completed' : ''}">${item.text}</span>
+            <span class="goal-item-drag-handle">⋮⋮</span>
+            <input type="checkbox" class="goal-item-checkbox" data-id="${itemId}" ${item.completed ? 'checked' : ''} />
+            <span class="goal-item-text" data-id="${itemId}">${item.text}</span>
             <button class="goal-item-delete" data-id="${itemId}">×</button>
         `;
         monthGoalsList.appendChild(row);
+
+        // 拖曳事件
+        row.addEventListener('dragstart', (e) => {
+            draggedMonthGoal = row;
+            row.classList.add('dragging');
+            e.dataTransfer.effectAllowed = 'move';
+        });
+
+        row.addEventListener('dragend', () => {
+            draggedMonthGoal = null;
+            row.classList.remove('dragging');
+            document.querySelectorAll('.goal-item-row.drag-over').forEach(el => el.classList.remove('drag-over'));
+        });
+
+        row.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            if (draggedMonthGoal && draggedMonthGoal !== row) {
+                row.classList.add('drag-over');
+            }
+        });
+
+        row.addEventListener('dragleave', () => {
+            row.classList.remove('drag-over');
+        });
+
+        row.addEventListener('drop', async (e) => {
+            e.preventDefault();
+            row.classList.remove('drag-over');
+            if (draggedMonthGoal && draggedMonthGoal !== row) {
+                const fromId = draggedMonthGoal.dataset.id;
+                const toId = row.dataset.id;
+                await reorderMonthGoals(fromId, toId);
+            }
+        });
     });
 
     // 綁定事件
-    monthGoalsList.querySelectorAll('input[type="checkbox"]').forEach(cb => {
-        cb.addEventListener('change', (e) => toggleMonthGoalItem(e.target.dataset.id, e.target.checked));
+    monthGoalsList.querySelectorAll('.goal-item-checkbox').forEach(cb => {
+        cb.addEventListener('change', (e) => {
+            e.stopPropagation();
+            toggleMonthGoalItem(e.target.dataset.id, e.target.checked);
+        });
     });
     monthGoalsList.querySelectorAll('.goal-item-delete').forEach(btn => {
-        btn.addEventListener('click', (e) => deleteMonthGoalItem(e.target.dataset.id));
+        btn.addEventListener('click', (e) => {
+            e.stopPropagation();
+            deleteMonthGoalItem(e.target.dataset.id);
+        });
     });
+    monthGoalsList.querySelectorAll('.goal-item-text').forEach(text => {
+        text.addEventListener('click', (e) => {
+            e.stopPropagation();
+            openEditMonthGoalModal(e.target.dataset.id);
+        });
+    });
+}
+
+async function reorderMonthGoals(fromId, toId) {
+    const sortedIds = getMonthGoalsSorted();
+    const fromIndex = sortedIds.indexOf(fromId);
+    const toIndex = sortedIds.indexOf(toId);
+
+    // 移動元素
+    sortedIds.splice(fromIndex, 1);
+    sortedIds.splice(toIndex, 0, fromId);
+
+    // 更新所有項目的 order
+    const monthKey = getMonthKey(currentYear, currentMonth);
+    const updates = {};
+    sortedIds.forEach((id, index) => {
+        updates[`users/${currentUser}/monthlyGoals/${monthKey}/items/${id}/order`] = index;
+    });
+
+    try {
+        await update(ref(db), updates);
+        await loadMonthGoal();
+    } catch (error) {
+        console.error('重新排序失敗:', error);
+    }
+}
+
+function openEditMonthGoalModal(itemId) {
+    const item = monthGoalsData[itemId];
+    if (!item) return;
+
+    editingMonthGoalId = itemId;
+    editMonthGoalInput.value = item.text;
+    selectedEditMonthGoalColor = item.color || 'blue';
+
+    // 更新顏色選擇器
+    editMonthGoalColorPicker.querySelectorAll('.color-option').forEach(opt => {
+        opt.classList.toggle('selected', opt.dataset.color === selectedEditMonthGoalColor);
+    });
+
+    editMonthGoalModal.classList.remove('hidden');
+}
+
+async function saveEditMonthGoal() {
+    if (!editingMonthGoalId || !currentUser) return;
+
+    const newText = editMonthGoalInput.value.trim();
+    if (!newText) {
+        alert('請輸入月目標');
+        return;
+    }
+
+    const monthKey = getMonthKey(currentYear, currentMonth);
+    const itemRef = ref(db, `users/${currentUser}/monthlyGoals/${monthKey}/items/${editingMonthGoalId}`);
+
+    try {
+        const updateData = { text: newText };
+        if (selectedEditMonthGoalColor) {
+            updateData.color = selectedEditMonthGoalColor;
+        }
+        await update(itemRef, updateData);
+        editMonthGoalModal.classList.add('hidden');
+        editingMonthGoalId = null;
+        await loadMonthGoal();
+    } catch (error) {
+        console.error('更新月目標失敗:', error);
+        alert('更新失敗，請稍後再試');
+    }
 }
 
 async function addMonthGoalItem() {
@@ -1033,8 +1606,17 @@ async function addMonthGoalItem() {
     const itemId = Date.now().toString();
     const itemRef = ref(db, `users/${currentUser}/monthlyGoals/${monthKey}/items/${itemId}`);
 
+    // 計算新項目的 order（放在最後）
+    const maxOrder = Object.values(monthGoalsData).reduce((max, item) => {
+        return Math.max(max, item.order ?? 0);
+    }, -1);
+
     try {
-        await set(itemRef, { text: text, completed: false });
+        const itemData = { text: text, completed: false, order: maxOrder + 1 };
+        if (selectedMonthGoalColor && selectedMonthGoalColor !== 'blue') {
+            itemData.color = selectedMonthGoalColor;
+        }
+        await set(itemRef, itemData);
         monthGoalInput.value = '';
         await loadMonthGoal();
     } catch (error) {
@@ -1072,9 +1654,44 @@ async function deleteMonthGoalItem(itemId) {
     }
 }
 
+// 月目標顏色選擇
+monthGoalColorPicker.querySelectorAll('.color-option').forEach(option => {
+    option.addEventListener('click', (e) => {
+        monthGoalColorPicker.querySelectorAll('.color-option').forEach(o => o.classList.remove('selected'));
+        e.target.classList.add('selected');
+        selectedMonthGoalColor = e.target.dataset.color;
+    });
+});
+
 addMonthGoalBtn.addEventListener('click', addMonthGoalItem);
 monthGoalInput.addEventListener('keypress', (e) => {
     if (e.key === 'Enter') addMonthGoalItem();
+});
+
+// 編輯月目標彈窗事件
+closeEditMonthGoalModal.addEventListener('click', () => {
+    editMonthGoalModal.classList.add('hidden');
+    editingMonthGoalId = null;
+});
+
+editMonthGoalModal.addEventListener('click', (e) => {
+    if (e.target === editMonthGoalModal) {
+        editMonthGoalModal.classList.add('hidden');
+        editingMonthGoalId = null;
+    }
+});
+
+editMonthGoalColorPicker.querySelectorAll('.color-option').forEach(option => {
+    option.addEventListener('click', (e) => {
+        editMonthGoalColorPicker.querySelectorAll('.color-option').forEach(o => o.classList.remove('selected'));
+        e.target.classList.add('selected');
+        selectedEditMonthGoalColor = e.target.dataset.color;
+    });
+});
+
+saveEditMonthGoalBtn.addEventListener('click', saveEditMonthGoal);
+editMonthGoalInput.addEventListener('keypress', (e) => {
+    if (e.key === 'Enter') saveEditMonthGoal();
 });
 
 // ==================== 週目標（多項目） ====================
