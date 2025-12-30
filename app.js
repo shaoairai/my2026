@@ -54,9 +54,6 @@ const monthGoalInput = document.getElementById("monthGoalInput");
 const addMonthGoalBtn = document.getElementById("addMonthGoalBtn");
 const monthGoalsList = document.getElementById("monthGoalsList");
 
-const weekGoalInput = document.getElementById("weekGoalInput");
-const addWeekGoalBtn = document.getElementById("addWeekGoalBtn");
-const weekGoalsList = document.getElementById("weekGoalsList");
 
 const progressRate = document.getElementById("progressRate");
 const progressDetail = document.getElementById("progressDetail");
@@ -237,7 +234,6 @@ function showMainPage() {
   initCalendar();
   loadYearGoals();
   loadMonthGoal();
-  loadWeekGoal();
   setupRealtimeListeners();
 }
 
@@ -328,18 +324,6 @@ function getDateKey(year, month, day) {
     2,
     "0"
   )}`;
-}
-
-// 取得 ISO 週 (例如 "2025-W01")
-function getISOWeek(date) {
-  const d = new Date(
-    Date.UTC(date.getFullYear(), date.getMonth(), date.getDate())
-  );
-  const dayNum = d.getUTCDay() || 7;
-  d.setUTCDate(d.getUTCDate() + 4 - dayNum);
-  const yearStart = new Date(Date.UTC(d.getUTCFullYear(), 0, 1));
-  const weekNo = Math.ceil(((d - yearStart) / 86400000 + 1) / 7);
-  return `${d.getUTCFullYear()}-W${String(weekNo).padStart(2, "0")}`;
 }
 
 // 取得今天的日期資訊
@@ -562,7 +546,6 @@ prevMonthBtn.addEventListener("click", () => {
   }
   renderCalendar();
   loadMonthGoal();
-  loadWeekGoal();
 });
 
 // 下一月
@@ -574,7 +557,6 @@ nextMonthBtn.addEventListener("click", () => {
   }
   renderCalendar();
   loadMonthGoal();
-  loadWeekGoal();
 });
 
 // ==================== 每日項目彈窗 ====================
@@ -1848,128 +1830,6 @@ editMonthGoalInput.addEventListener("keypress", (e) => {
   if (e.key === "Enter") saveEditMonthGoal();
 });
 
-// ==================== 週目標（多項目） ====================
-
-let weekGoalsData = {};
-let currentWeekKey = "";
-
-async function loadWeekGoal() {
-  if (!currentUser) return;
-
-  currentWeekKey = getISOWeek(new Date());
-  const weekGoalRef = ref(
-    db,
-    `users/${currentUser}/weeklyGoals/${currentWeekKey}/items`
-  );
-
-  try {
-    const snapshot = await get(weekGoalRef);
-    if (snapshot.exists()) {
-      weekGoalsData = snapshot.val();
-    } else {
-      weekGoalsData = {};
-    }
-    renderWeekGoalsList();
-  } catch (error) {
-    console.error("讀取週目標失敗:", error);
-  }
-}
-
-function renderWeekGoalsList() {
-  weekGoalsList.innerHTML = "";
-
-  Object.keys(weekGoalsData).forEach((itemId) => {
-    const item = weekGoalsData[itemId];
-    const row = document.createElement("div");
-    row.className = "goal-item-row";
-    row.innerHTML = `
-            <input type="checkbox" data-id="${itemId}" ${
-      item.completed ? "checked" : ""
-    } />
-            <span class="goal-item-text${item.completed ? " completed" : ""}">${
-      item.text
-    }</span>
-            <button class="goal-item-delete" data-id="${itemId}">×</button>
-        `;
-    weekGoalsList.appendChild(row);
-  });
-
-  // 綁定事件
-  weekGoalsList.querySelectorAll('input[type="checkbox"]').forEach((cb) => {
-    cb.addEventListener("change", (e) =>
-      toggleWeekGoalItem(e.target.dataset.id, e.target.checked)
-    );
-  });
-  weekGoalsList.querySelectorAll(".goal-item-delete").forEach((btn) => {
-    btn.addEventListener("click", (e) =>
-      deleteWeekGoalItem(e.target.dataset.id)
-    );
-  });
-}
-
-async function addWeekGoalItem() {
-  if (!currentUser) return;
-
-  const text = weekGoalInput.value.trim();
-  if (!text) {
-    alert("請輸入週目標");
-    return;
-  }
-
-  const itemId = Date.now().toString();
-  const itemRef = ref(
-    db,
-    `users/${currentUser}/weeklyGoals/${currentWeekKey}/items/${itemId}`
-  );
-
-  try {
-    await set(itemRef, { text: text, completed: false });
-    weekGoalInput.value = "";
-    await loadWeekGoal();
-  } catch (error) {
-    console.error("新增週目標失敗:", error);
-    alert("新增失敗，請稍後再試");
-  }
-}
-
-async function toggleWeekGoalItem(itemId, completed) {
-  if (!currentUser) return;
-
-  const itemRef = ref(
-    db,
-    `users/${currentUser}/weeklyGoals/${currentWeekKey}/items/${itemId}`
-  );
-
-  try {
-    await update(itemRef, { completed: completed });
-    await loadWeekGoal();
-  } catch (error) {
-    console.error("更新週目標狀態失敗:", error);
-  }
-}
-
-async function deleteWeekGoalItem(itemId) {
-  if (!currentUser) return;
-  if (!confirm("確定要刪除此週目標嗎？")) return;
-
-  const itemRef = ref(
-    db,
-    `users/${currentUser}/weeklyGoals/${currentWeekKey}/items/${itemId}`
-  );
-
-  try {
-    await set(itemRef, null);
-    await loadWeekGoal();
-  } catch (error) {
-    console.error("刪除週目標失敗:", error);
-  }
-}
-
-addWeekGoalBtn.addEventListener("click", addWeekGoalItem);
-weekGoalInput.addEventListener("keypress", (e) => {
-  if (e.key === "Enter") addWeekGoalItem();
-});
-
 // ==================== 達成率計算 ====================
 
 function calculateProgressRate() {
@@ -2056,6 +1916,298 @@ function setupRealtimeListeners() {
       renderItemsList();
     }
   });
+}
+
+// ==================== 統計總覽功能 ====================
+
+const viewStatsBtn = document.getElementById("viewStatsBtn");
+const statsModal = document.getElementById("statsModal");
+const closeStatsModal = document.getElementById("closeStatsModal");
+const statsContent = document.getElementById("statsContent");
+const statsGridViewBtn = document.getElementById("statsGridViewBtn");
+const statsChartViewBtn = document.getElementById("statsChartViewBtn");
+
+// 使用者顏色對應
+const userColors = ["#3498DB", "#E74C3C", "#2ECC71", "#F1C40F", "#9B59B6", "#E91E63", "#1ABC9C", "#E67E22"];
+
+// 統計資料快取
+let cachedStatsData = null;
+let currentStatsView = "grid"; // "grid" or "chart"
+
+// 開啟統計彈窗
+viewStatsBtn.addEventListener("click", async () => {
+  statsModal.classList.remove("hidden");
+  statsContent.innerHTML = '<p class="loading-text">載入中...</p>';
+  cachedStatsData = null;
+  await loadAllUsersStats();
+});
+
+// 關閉統計彈窗
+closeStatsModal.addEventListener("click", () => {
+  statsModal.classList.add("hidden");
+});
+
+statsModal.addEventListener("click", (e) => {
+  if (e.target === statsModal) {
+    statsModal.classList.add("hidden");
+  }
+});
+
+// 切換視圖按鈕
+statsGridViewBtn.addEventListener("click", () => {
+  if (currentStatsView === "grid") return;
+  currentStatsView = "grid";
+  statsGridViewBtn.classList.add("active");
+  statsChartViewBtn.classList.remove("active");
+  renderStatsView();
+});
+
+statsChartViewBtn.addEventListener("click", () => {
+  if (currentStatsView === "chart") return;
+  currentStatsView = "chart";
+  statsChartViewBtn.classList.add("active");
+  statsGridViewBtn.classList.remove("active");
+  renderStatsView();
+});
+
+// 載入所有使用者的統計資料
+async function loadAllUsersStats() {
+  try {
+    // 取得所有白名單使用者
+    const whitelistRef = ref(db, "loginWhitelist");
+    const whitelistSnapshot = await get(whitelistRef);
+
+    if (!whitelistSnapshot.exists()) {
+      statsContent.innerHTML = '<p class="loading-text">沒有使用者資料</p>';
+      return;
+    }
+
+    const users = Object.keys(whitelistSnapshot.val());
+    cachedStatsData = [];
+
+    for (let i = 0; i < users.length; i++) {
+      const phone = users[i];
+      const userColor = userColors[i % userColors.length];
+
+      // 取得該使用者 2026 年的資料
+      const monthlyRates = await getUserMonthlyRates(phone, 2026);
+      const yearGoals = await getUserYearGoals(phone, 2026);
+
+      cachedStatsData.push({
+        phone,
+        color: userColor,
+        monthlyRates,
+        yearGoals
+      });
+    }
+
+    renderStatsView();
+  } catch (error) {
+    console.error("載入統計資料失敗:", error);
+    statsContent.innerHTML = '<p class="loading-text">載入失敗，請稍後再試</p>';
+  }
+}
+
+// 根據當前視圖模式渲染統計內容
+function renderStatsView() {
+  if (!cachedStatsData || cachedStatsData.length === 0) {
+    statsContent.innerHTML = '<p class="loading-text">沒有使用者資料</p>';
+    return;
+  }
+
+  let html = "";
+
+  if (currentStatsView === "grid") {
+    cachedStatsData.forEach((userData) => {
+      html += renderUserStatsSection(userData.phone, userData.color, userData.monthlyRates, userData.yearGoals);
+    });
+  } else {
+    cachedStatsData.forEach((userData) => {
+      html += renderUserChartSection(userData.phone, userData.color, userData.monthlyRates, userData.yearGoals);
+    });
+  }
+
+  statsContent.innerHTML = html;
+}
+
+// 取得使用者各月達成率
+async function getUserMonthlyRates(phone, year) {
+  const rates = [];
+
+  for (let month = 0; month < 12; month++) {
+    const monthKey = `${year}-${String(month + 1).padStart(2, "0")}`;
+
+    try {
+      // 取得該月的每日目標資料
+      const dailyGoalsRef = ref(db, `users/${phone}/dailyGoals`);
+      const snapshot = await get(dailyGoalsRef);
+
+      let totalItems = 0;
+      let completedItems = 0;
+
+      if (snapshot.exists()) {
+        const dailyGoals = snapshot.val();
+
+        // 計算當月的項目
+        const daysInMonth = new Date(year, month + 1, 0).getDate();
+        for (let day = 1; day <= daysInMonth; day++) {
+          const dateKey = `${year}-${String(month + 1).padStart(2, "0")}-${String(day).padStart(2, "0")}`;
+          const dayData = dailyGoals[dateKey];
+
+          if (dayData && dayData.items) {
+            Object.values(dayData.items).forEach((item) => {
+              totalItems++;
+              if (item.completed) completedItems++;
+            });
+          }
+        }
+      }
+
+      const rate = totalItems > 0 ? Math.round((completedItems / totalItems) * 100) : null;
+      rates.push({ month: month + 1, rate });
+    } catch (error) {
+      rates.push({ month: month + 1, rate: null });
+    }
+  }
+
+  return rates;
+}
+
+// 取得使用者年度目標
+async function getUserYearGoals(phone, year) {
+  try {
+    const yearGoalsRef = ref(db, `users/${phone}/yearlyGoals/${year}/items`);
+    const snapshot = await get(yearGoalsRef);
+
+    if (snapshot.exists()) {
+      const goals = snapshot.val();
+      return Object.values(goals).sort((a, b) => (a.order ?? 999) - (b.order ?? 999));
+    }
+    return [];
+  } catch (error) {
+    return [];
+  }
+}
+
+// 渲染單一使用者的統計區塊
+function renderUserStatsSection(phone, color, monthlyRates, yearGoals) {
+  // 月達成率 HTML
+  let monthsHtml = "";
+  monthlyRates.forEach((m) => {
+    const rateClass = m.rate === null ? "none" : m.rate >= 70 ? "high" : m.rate >= 40 ? "medium" : "low";
+    const rateText = m.rate === null ? "--" : `${m.rate}%`;
+    monthsHtml += `
+      <div class="stats-month">
+        <div class="stats-month-label">${m.month}月</div>
+        <div class="stats-month-rate ${rateClass}">${rateText}</div>
+      </div>
+    `;
+  });
+
+  // 年度目標 HTML
+  let goalsHtml = "";
+  if (yearGoals.length > 0) {
+    yearGoals.forEach((goal) => {
+      const statusClass = goal.completed ? "completed" : "pending";
+      const statusIcon = goal.completed ? "✓" : "";
+      const textClass = goal.completed ? "completed" : "";
+      goalsHtml += `
+        <div class="stats-goal-item">
+          <span class="goal-status ${statusClass}">${statusIcon}</span>
+          <span class="goal-text ${textClass}">${goal.text}</span>
+        </div>
+      `;
+    });
+  } else {
+    goalsHtml = '<p class="stats-no-goals">尚未設定年度目標</p>';
+  }
+
+  return `
+    <div class="stats-user-section">
+      <div class="stats-user-header">
+        <div class="stats-user-avatar" style="background-color: ${color}">👤</div>
+        <span class="stats-user-name">${phone}</span>
+      </div>
+      <div class="stats-months">${monthsHtml}</div>
+      <div class="stats-year-goals">
+        <div class="stats-year-goals-title">🎯 年度目標</div>
+        ${goalsHtml}
+      </div>
+    </div>
+  `;
+}
+
+// 渲染單一使用者的圖表區塊
+function renderUserChartSection(phone, color, monthlyRates, yearGoals) {
+  // 長條圖 HTML
+  let barsHtml = "";
+  monthlyRates.forEach((m) => {
+    const rate = m.rate ?? 0;
+    const heightPercent = m.rate === null ? 3 : Math.max(rate, 3); // 最小高度 3%
+    const rateClass = m.rate === null ? "none" : rate >= 70 ? "high" : rate >= 40 ? "medium" : "low";
+    const tooltipText = m.rate === null ? "無資料" : `${m.rate}%`;
+
+    barsHtml += `
+      <div class="stats-bar-wrapper">
+        <div class="stats-bar ${rateClass}" style="height: ${heightPercent}%">
+          <span class="stats-bar-tooltip">${tooltipText}</span>
+          <span class="stats-bar-label">${m.month}月</span>
+        </div>
+      </div>
+    `;
+  });
+
+  // 年度目標 HTML
+  let goalsHtml = "";
+  if (yearGoals.length > 0) {
+    yearGoals.forEach((goal) => {
+      const statusClass = goal.completed ? "completed" : "pending";
+      const statusIcon = goal.completed ? "✓" : "";
+      const textClass = goal.completed ? "completed" : "";
+      goalsHtml += `
+        <div class="stats-goal-item">
+          <span class="goal-status ${statusClass}">${statusIcon}</span>
+          <span class="goal-text ${textClass}">${goal.text}</span>
+        </div>
+      `;
+    });
+  } else {
+    goalsHtml = '<p class="stats-no-goals">尚未設定年度目標</p>';
+  }
+
+  return `
+    <div class="stats-chart-section">
+      <div class="stats-chart-header">
+        <div class="stats-chart-avatar" style="background-color: ${color}">👤</div>
+        <span class="stats-chart-name">${phone}</span>
+      </div>
+      <div class="stats-chart-container">
+        <div class="stats-chart">
+          <div class="stats-chart-y-axis">
+            <span>100%</span>
+            <span>75%</span>
+            <span>50%</span>
+            <span>25%</span>
+            <span>0%</span>
+          </div>
+          <div class="stats-chart-bars">
+            <div class="stats-chart-grid">
+              <div class="stats-chart-grid-line"></div>
+              <div class="stats-chart-grid-line"></div>
+              <div class="stats-chart-grid-line"></div>
+              <div class="stats-chart-grid-line"></div>
+              <div class="stats-chart-grid-line"></div>
+            </div>
+            ${barsHtml}
+          </div>
+        </div>
+      </div>
+      <div class="stats-chart-goals">
+        <div class="stats-year-goals-title">🎯 年度目標</div>
+        ${goalsHtml}
+      </div>
+    </div>
+  `;
 }
 
 // ==================== 初始化 ====================

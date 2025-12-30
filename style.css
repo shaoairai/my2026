@@ -1021,6 +1021,12 @@ body {
     overflow-y: auto;
 }
 
+.modal-content.modal-stats {
+    max-width: 700px;
+    max-height: 85vh;
+    overflow-y: auto;
+}
+
 .modal-close {
     position: absolute;
     top: 16px;
@@ -1433,6 +1439,350 @@ body {
     background: var(--success-hover);
 }
 
+/* ==================== 統計總覽樣式 ==================== */
+.stats-view-toggle {
+    display: flex;
+    gap: 8px;
+    margin-bottom: 16px;
+}
+
+.stats-view-toggle .view-btn {
+    padding: 8px 16px;
+    border: 1px solid var(--border);
+    background: var(--bg-card);
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 14px;
+    color: var(--text-secondary);
+    transition: all 0.2s;
+}
+
+.stats-view-toggle .view-btn:hover {
+    background: var(--bg-hover);
+    color: var(--text-primary);
+}
+
+.stats-view-toggle .view-btn.active {
+    background: var(--primary);
+    color: var(--text-on-primary);
+    border-color: var(--primary);
+}
+
+.stats-content {
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+}
+
+.stats-content .loading-text {
+    text-align: center;
+    color: var(--text-secondary);
+    padding: 40px 0;
+}
+
+.stats-user-section {
+    background: var(--bg-muted);
+    border-radius: 12px;
+    padding: 16px;
+}
+
+.stats-user-header {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 16px;
+    padding-bottom: 12px;
+    border-bottom: 1px solid var(--border);
+}
+
+.stats-user-avatar {
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 18px;
+    color: var(--text-on-primary);
+}
+
+.stats-user-name {
+    font-size: 16px;
+    font-weight: 600;
+    color: var(--text-primary);
+}
+
+.stats-months {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 8px;
+    margin-bottom: 16px;
+}
+
+.stats-month {
+    background: var(--bg-card);
+    border-radius: 8px;
+    padding: 10px 8px;
+    text-align: center;
+    box-shadow: var(--shadow-sm);
+}
+
+.stats-month-label {
+    font-size: 12px;
+    color: var(--text-secondary);
+    margin-bottom: 4px;
+}
+
+.stats-month-rate {
+    font-size: 18px;
+    font-weight: 600;
+}
+
+.stats-month-rate.high {
+    color: var(--success);
+}
+
+.stats-month-rate.medium {
+    color: #E67E22;
+}
+
+.stats-month-rate.low {
+    color: #E74C3C;
+}
+
+.stats-month-rate.none {
+    color: var(--text-secondary);
+}
+
+.stats-year-goals {
+    background: var(--bg-card);
+    border-radius: 8px;
+    padding: 12px;
+}
+
+.stats-year-goals-title {
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--text-primary);
+    margin-bottom: 10px;
+}
+
+.stats-goal-item {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 6px 0;
+    font-size: 13px;
+}
+
+.stats-goal-item .goal-status {
+    width: 18px;
+    height: 18px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 10px;
+    flex-shrink: 0;
+}
+
+.stats-goal-item .goal-status.completed {
+    background: var(--success);
+    color: var(--text-on-primary);
+}
+
+.stats-goal-item .goal-status.pending {
+    background: var(--border);
+    color: var(--text-secondary);
+}
+
+.stats-goal-item .goal-text {
+    flex: 1;
+    color: var(--text-primary);
+}
+
+.stats-goal-item .goal-text.completed {
+    text-decoration: line-through;
+    color: var(--text-secondary);
+}
+
+.stats-no-goals {
+    font-size: 13px;
+    color: var(--text-secondary);
+    font-style: italic;
+}
+
+/* 圖表視圖樣式 */
+.stats-chart-section {
+    background: var(--bg-muted);
+    border-radius: 12px;
+    padding: 16px;
+}
+
+.stats-chart-header {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 16px;
+}
+
+.stats-chart-avatar {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 16px;
+    color: var(--text-on-primary);
+}
+
+.stats-chart-name {
+    font-size: 15px;
+    font-weight: 600;
+    color: var(--text-primary);
+}
+
+.stats-chart-container {
+    background: var(--bg-card);
+    border-radius: 8px;
+    padding: 16px;
+    margin-bottom: 12px;
+}
+
+.stats-chart {
+    display: flex;
+    align-items: flex-end;
+    gap: 4px;
+    height: 150px;
+    padding: 0 4px;
+    position: relative;
+}
+
+.stats-chart-y-axis {
+    position: absolute;
+    left: 0;
+    top: 0;
+    bottom: 24px;
+    width: 36px;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    font-size: 10px;
+    color: var(--text-secondary);
+}
+
+.stats-chart-y-axis span {
+    text-align: right;
+    padding-right: 6px;
+}
+
+.stats-chart-bars {
+    display: flex;
+    align-items: flex-end;
+    gap: 6px;
+    height: 100%;
+    flex: 1;
+    margin-left: 36px;
+    padding-bottom: 24px;
+    border-left: 1px solid var(--border);
+    border-bottom: 1px solid var(--border);
+    position: relative;
+}
+
+.stats-chart-grid {
+    position: absolute;
+    left: 0;
+    right: 0;
+    top: 0;
+    bottom: 24px;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    pointer-events: none;
+}
+
+.stats-chart-grid-line {
+    border-top: 1px dashed var(--border-light);
+    width: 100%;
+}
+
+.stats-bar-wrapper {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    height: 100%;
+    position: relative;
+}
+
+.stats-bar {
+    width: 100%;
+    max-width: 28px;
+    border-radius: 4px 4px 0 0;
+    transition: height 0.3s ease;
+    position: relative;
+    cursor: pointer;
+}
+
+.stats-bar:hover {
+    opacity: 0.85;
+    transform: scaleX(1.1);
+}
+
+.stats-bar-tooltip {
+    position: absolute;
+    top: -28px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: var(--text-primary);
+    color: var(--bg-card);
+    padding: 4px 8px;
+    border-radius: 4px;
+    font-size: 11px;
+    font-weight: 600;
+    white-space: nowrap;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.2s;
+}
+
+.stats-bar:hover .stats-bar-tooltip {
+    opacity: 1;
+}
+
+.stats-bar-label {
+    position: absolute;
+    bottom: -20px;
+    left: 50%;
+    transform: translateX(-50%);
+    font-size: 10px;
+    color: var(--text-secondary);
+    white-space: nowrap;
+}
+
+.stats-bar.high {
+    background: linear-gradient(180deg, var(--success) 0%, #E09515 100%);
+}
+
+.stats-bar.medium {
+    background: linear-gradient(180deg, #E67E22 0%, #D35400 100%);
+}
+
+.stats-bar.low {
+    background: linear-gradient(180deg, #E74C3C 0%, #C0392B 100%);
+}
+
+.stats-bar.none {
+    background: var(--border);
+}
+
+.stats-chart-goals {
+    background: var(--bg-card);
+    border-radius: 8px;
+    padding: 12px;
+}
+
 /* ==================== RWD 手機版 ==================== */
 @media (max-width: 600px) {
     .header {
@@ -1506,5 +1856,14 @@ body {
 
     .calendar-header h2 {
         font-size: 1.2rem;
+    }
+
+    .stats-months {
+        grid-template-columns: repeat(3, 1fr);
+    }
+
+    .modal-content.modal-stats {
+        max-width: 95%;
+        padding: 16px;
     }
 }
