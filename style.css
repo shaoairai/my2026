@@ -607,13 +607,29 @@ body {
 .progress-card #progressRate {
     font-size: 3rem;
     font-weight: bold;
-    color: var(--success);
+    color: var(--primary);
 }
 
 .progress-detail {
     text-align: center;
     font-size: 14px;
     color: var(--text-secondary);
+}
+
+.delete-all-btn {
+    padding: 8px 16px;
+    background: #e74c3c;
+    color: white;
+    border: none;
+    border-radius: 6px;
+    font-size: 13px;
+    cursor: pointer;
+    transition: background 0.2s, transform 0.1s;
+}
+
+.delete-all-btn:hover {
+    background: #c0392b;
+    transform: scale(1.02);
 }
 
 /* ==================== 其他人日曆區 ==================== */
@@ -945,11 +961,16 @@ body {
     transform: scale(1.02);
 }
 
-/* 已完成項目 - 使用成長綠 */
+/* 已完成項目 - 保持原色，加勾勾和刪除線 */
 .calendar-day .day-item.my-item.completed {
-    background-color: var(--success);
     text-decoration: line-through;
     opacity: 0.85;
+}
+
+.calendar-day .day-item.my-item.completed::before {
+    content: "✓";
+    margin-right: 2px;
+    font-weight: bold;
 }
 
 /* 項目顏色 - 鮮豔色調 */
@@ -961,18 +982,6 @@ body {
 .calendar-day .day-item.item-color-purple { background-color: #9B59B6 !important; }
 .calendar-day .day-item.item-color-pink { background-color: #E91E63 !important; }
 .calendar-day .day-item.item-color-gray { background-color: #7F8C8D !important; }
-
-/* 已完成項目統一使用成長綠 */
-.calendar-day .day-item.item-color-red.completed,
-.calendar-day .day-item.item-color-orange.completed,
-.calendar-day .day-item.item-color-yellow.completed,
-.calendar-day .day-item.item-color-cyan.completed,
-.calendar-day .day-item.item-color-blue.completed,
-.calendar-day .day-item.item-color-purple.completed,
-.calendar-day .day-item.item-color-pink.completed,
-.calendar-day .day-item.item-color-gray.completed {
-    background-color: var(--success) !important;
-}
 
 /* 其他人的項目顏色 */
 .calendar-day .day-item.other-item-0 { background-color: #EBF5FB; color: #2980B9; }
@@ -1538,16 +1547,10 @@ body {
     font-weight: 600;
 }
 
-.stats-month-rate.high {
-    color: var(--success);
-}
-
-.stats-month-rate.medium {
-    color: #E67E22;
-}
-
+.stats-month-rate.high,
+.stats-month-rate.medium,
 .stats-month-rate.low {
-    color: #E74C3C;
+    color: var(--primary);
 }
 
 .stats-month-rate.none {
@@ -1712,6 +1715,7 @@ body {
     display: flex;
     flex-direction: column;
     align-items: center;
+    justify-content: flex-end;
     height: 100%;
     position: relative;
 }
@@ -1761,16 +1765,10 @@ body {
     white-space: nowrap;
 }
 
-.stats-bar.high {
-    background: linear-gradient(180deg, var(--success) 0%, #E09515 100%);
-}
-
-.stats-bar.medium {
-    background: linear-gradient(180deg, #E67E22 0%, #D35400 100%);
-}
-
+.stats-bar.high,
+.stats-bar.medium,
 .stats-bar.low {
-    background: linear-gradient(180deg, #E74C3C 0%, #C0392B 100%);
+    background: var(--primary);
 }
 
 .stats-bar.none {

@@ -1830,6 +1830,40 @@ editMonthGoalInput.addEventListener("keypress", (e) => {
   if (e.key === "Enter") saveEditMonthGoal();
 });
 
+// ==================== 刪除當月所有日曆項目 ====================
+
+const deleteAllMonthItemsBtn = document.getElementById("deleteAllMonthItemsBtn");
+
+deleteAllMonthItemsBtn.addEventListener("click", async () => {
+  if (!currentUser) return;
+
+  const daysInMonth = new Date(currentYear, currentMonth + 1, 0).getDate();
+  const monthName = `${currentYear}年${currentMonth + 1}月`;
+
+  const confirmDelete = confirm(
+    `確定要刪除 ${monthName} 日曆中的所有項目嗎？\n此操作無法復原！`
+  );
+  if (!confirmDelete) return;
+
+  try {
+    const updates = {};
+
+    // 遍歷該月每一天，收集所有要刪除的項目
+    for (let day = 1; day <= daysInMonth; day++) {
+      const dateKey = getDateKey(currentYear, currentMonth, day);
+      updates[`users/${currentUser}/dailyGoals/${dateKey}/items`] = null;
+    }
+
+    // 批次更新（刪除）
+    await update(ref(db), updates);
+
+    alert(`已刪除 ${monthName} 的所有日曆項目`);
+  } catch (error) {
+    console.error("刪除當月項目失敗:", error);
+    alert("刪除失敗，請稍後再試");
+  }
+});
+
 // ==================== 達成率計算 ====================
 
 function calculateProgressRate() {
@@ -1837,26 +1871,14 @@ function calculateProgressRate() {
   const isCurrentMonth =
     currentYear === today.year && currentMonth === today.month;
 
-  let totalItems = 0;
-  let completedItems = 0;
+  // 取得該月總天數
+  const daysInMonth = new Date(currentYear, currentMonth + 1, 0).getDate();
+
   let daysWithItems = 0;
   let daysAllCompleted = 0;
 
-  const maxDay = isCurrentMonth
-    ? today.day
-    : currentYear < today.year ||
-      (currentYear === today.year && currentMonth < today.month)
-    ? new Date(currentYear, currentMonth + 1, 0).getDate()
-    : 0;
-
-  if (maxDay === 0) {
-    // 未來月份：無法計算
-    progressRate.textContent = "--%";
-    progressDetail.textContent = "未來月份無法計算";
-    return;
-  }
-
-  for (let day = 1; day <= maxDay; day++) {
+  // 遍歷整個月的每一天（不限於今天之前）
+  for (let day = 1; day <= daysInMonth; day++) {
     const dateKey = getDateKey(currentYear, currentMonth, day);
     const data = dailyGoalsData[dateKey];
     const items = data?.items || {};
@@ -1864,26 +1886,18 @@ function calculateProgressRate() {
 
     if (itemKeys.length > 0) {
       daysWithItems++;
-      totalItems += itemKeys.length;
-
-      let dayCompleted = 0;
-      itemKeys.forEach((id) => {
-        if (items[id].completed === true) {
-          completedItems++;
-          dayCompleted++;
-        }
-      });
-
-      if (dayCompleted === itemKeys.length) {
+      // 只有當天所有項目都完成，才算完成一天
+      const allCompleted = itemKeys.every((id) => items[id].completed === true);
+      if (allCompleted) {
         daysAllCompleted++;
       }
     }
   }
 
-  const rate =
-    totalItems > 0 ? Math.round((completedItems / totalItems) * 100) : 0;
+  // 以有項目的天數為分母計算達成率
+  const rate = daysWithItems > 0 ? Math.round((daysAllCompleted / daysWithItems) * 100) : 0;
   progressRate.textContent = `${rate}%`;
-  progressDetail.textContent = `已完成 ${completedItems} 項 / 共 ${totalItems} 項（${daysAllCompleted}/${daysWithItems} 天全完成）`;
+  progressDetail.textContent = `全完成 ${daysAllCompleted} 天 / 有項目 ${daysWithItems} 天`;
 
   // 更新 Firebase 中的達成率
   if (currentUser && isCurrentMonth) {
@@ -2042,28 +2056,34 @@ async function getUserMonthlyRates(phone, year) {
       const dailyGoalsRef = ref(db, `users/${phone}/dailyGoals`);
       const snapshot = await get(dailyGoalsRef);
 
-      let totalItems = 0;
-      let completedItems = 0;
+      let daysWithItems = 0;
+      let daysAllCompleted = 0;
 
       if (snapshot.exists()) {
         const dailyGoals = snapshot.val();
 
-        // 計算當月的項目
+        // 計算當月的項目（與本月達成率相同邏輯）
         const daysInMonth = new Date(year, month + 1, 0).getDate();
         for (let day = 1; day <= daysInMonth; day++) {
           const dateKey = `${year}-${String(month + 1).padStart(2, "0")}-${String(day).padStart(2, "0")}`;
           const dayData = dailyGoals[dateKey];
 
           if (dayData && dayData.items) {
-            Object.values(dayData.items).forEach((item) => {
-              totalItems++;
-              if (item.completed) completedItems++;
-            });
+            const items = Object.values(dayData.items);
+            if (items.length > 0) {
+              daysWithItems++;
+              // 只有當天所有項目都完成，才算完成一天
+              const allCompleted = items.every((item) => item.completed === true);
+              if (allCompleted) {
+                daysAllCompleted++;
+              }
+            }
           }
         }
       }
 
-      const rate = totalItems > 0 ? Math.round((completedItems / totalItems) * 100) : null;
+      // 以有項目的天數為分母計算達成率
+      const rate = daysWithItems > 0 ? Math.round((daysAllCompleted / daysWithItems) * 100) : null;
       rates.push({ month: month + 1, rate });
     } catch (error) {
       rates.push({ month: month + 1, rate: null });
