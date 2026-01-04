@@ -2,8 +2,8 @@
   "name": "Goal 2026",
   "short_name": "Goal",
   "description": "2026 年度目標追蹤與日曆管理",
-  "start_url": "/my2026/",
-  "scope": "/my2026/",
+  "start_url": "https://shaoairai.github.io/my2026/",
+  "scope": "https://shaoairai.github.io/my2026/",
   "display": "standalone",
   "background_color": "#F8FAF9",
   "theme_color": "#2D9B6E",
@@ -13,13 +13,25 @@
       "src": "icons/icon-192.png",
       "sizes": "192x192",
       "type": "image/png",
-      "purpose": "any maskable"
+      "purpose": "any"
+    },
+    {
+      "src": "icons/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "maskable"
     },
     {
       "src": "icons/icon-512.png",
       "sizes": "512x512",
       "type": "image/png",
-      "purpose": "any maskable"
+      "purpose": "any"
+    },
+    {
+      "src": "icons/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable"
     }
   ]
 }
