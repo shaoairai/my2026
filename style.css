@@ -789,6 +789,7 @@ body {
     max-width: 900px;
     margin: 0 auto;
     padding: 20px;
+    padding-bottom: 8rem;
 }
 
 .calendar-header {
@@ -842,7 +843,7 @@ body {
 }
 
 .calendar-weekdays div:last-child {
-    color: #4A90A4;
+    color: #E07A5F;
 }
 
 .calendar-grid {
@@ -889,7 +890,7 @@ body {
 }
 
 .calendar-day.saturday .day-number {
-    color: #4A90A4;
+    color: #E07A5F;
 }
 
 /* 今天的樣式 - 使用主色強調 */
