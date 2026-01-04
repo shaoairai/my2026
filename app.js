@@ -409,6 +409,15 @@ function renderCalendar() {
     calendarGrid.appendChild(dayDiv);
   }
 
+  // 填入空白格 (月末之後)
+  const lastDay = new Date(currentYear, currentMonth, daysInMonth).getDay();
+  const remainingDays = lastDay === 6 ? 0 : 6 - lastDay;
+  for (let i = 0; i < remainingDays; i++) {
+    const emptyDiv = document.createElement("div");
+    emptyDiv.className = "calendar-day empty";
+    calendarGrid.appendChild(emptyDiv);
+  }
+
   // 更新日曆上的項目顯示
   updateCalendarStatus();
 }
